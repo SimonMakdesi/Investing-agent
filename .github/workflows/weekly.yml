@@ -1,0 +1,36 @@
+name: Weekly cycle
+
+# Sunday 18:00 Europe/Stockholm.
+# GitHub schedules are UTC. Stockholm = UTC+1 (winter) / UTC+2 (summer DST).
+# We run at 17:00 UTC — this is 18:00 in winter and 19:00 in summer.
+# Phase 3 will revisit this (run twice / use a job-internal time check / etc.)
+on:
+  schedule:
+    - cron: "0 17 * * 0"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write  # for committing state/ updates back to the repo
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Phase 1 no-op
+        run: |
+          echo "Phase 1 plumbing — pipeline not yet implemented."
+          echo "Phase 2 will run: uv run python -m src.pipeline_weekly"

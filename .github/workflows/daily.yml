@@ -1,0 +1,33 @@
+name: Daily light cycle
+
+# Weekdays at 17:00 UTC (~18:00 / 19:00 Europe/Stockholm depending on DST).
+on:
+  schedule:
+    - cron: "0 17 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Phase 1 no-op
+        run: |
+          echo "Phase 1 plumbing — daily monitor not yet implemented."
+          echo "Phase 2 will run: uv run python -m src.pipeline_daily"
