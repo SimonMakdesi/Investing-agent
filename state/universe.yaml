@@ -1,0 +1,119 @@
+# The Investing Agent's universe of candidates.
+#
+# Three tiers:
+#   - large_cap, mid_cap: high-quality names auto-eligible for both Core and Aggressive sleeves
+#   - curated_small_first_north: smaller names eligible mainly for Aggressive sleeve
+#
+# Until Borsdata API access is wired up (Phase 2 stretch), these lists are
+# manually maintained. The agent may propose adds/removes in the weekly journal;
+# you can act on those by editing this file.
+#
+# Tickers are Yahoo Finance format (`.ST` suffix; `-A` / `-B` for share classes).
+
+large_cap:
+  - {ticker: VOLV-B.ST,   name: "Volvo B",                 sector: "Industrials"}
+  - {ticker: ERIC-B.ST,   name: "Ericsson B",              sector: "Technology"}
+  - {ticker: HM-B.ST,     name: "H&M B",                   sector: "Consumer Discretionary"}
+  - {ticker: INVE-B.ST,   name: "Investor B",              sector: "Financials"}
+  - {ticker: ATCO-A.ST,   name: "Atlas Copco A",           sector: "Industrials"}
+  - {ticker: ATCO-B.ST,   name: "Atlas Copco B",           sector: "Industrials"}
+  - {ticker: HEXA-B.ST,   name: "Hexagon B",               sector: "Technology"}
+  - {ticker: SAND.ST,     name: "Sandvik",                 sector: "Industrials"}
+  - {ticker: SEB-A.ST,    name: "SEB A",                   sector: "Financials"}
+  - {ticker: SWED-A.ST,   name: "Swedbank A",              sector: "Financials"}
+  - {ticker: SHB-A.ST,    name: "Handelsbanken A",         sector: "Financials"}
+  - {ticker: NDA-SE.ST,   name: "Nordea",                  sector: "Financials"}
+  - {ticker: ASSA-B.ST,   name: "Assa Abloy B",            sector: "Industrials"}
+  - {ticker: ALFA.ST,     name: "Alfa Laval",              sector: "Industrials"}
+  - {ticker: SKF-B.ST,    name: "SKF B",                   sector: "Industrials"}
+  - {ticker: ELUX-B.ST,   name: "Electrolux B",            sector: "Consumer Discretionary"}
+  - {ticker: TEL2-B.ST,   name: "Tele2 B",                 sector: "Communication"}
+  - {ticker: TELIA.ST,    name: "Telia",                   sector: "Communication"}
+  - {ticker: BOL.ST,      name: "Boliden",                 sector: "Materials"}
+  - {ticker: SCA-B.ST,    name: "SCA B",                   sector: "Materials"}
+  - {ticker: SSAB-A.ST,   name: "SSAB A",                  sector: "Materials"}
+  - {ticker: SSAB-B.ST,   name: "SSAB B",                  sector: "Materials"}
+  - {ticker: GETI-B.ST,   name: "Getinge B",               sector: "Healthcare"}
+  # AstraZeneca primary listing is London; Stockholm ADR has thin data on Yahoo - skip for now
+  # - {ticker: AZN.ST,      name: "AstraZeneca",             sector: "Healthcare"}
+  - {ticker: KINV-B.ST,   name: "Kinnevik B",              sector: "Financials"}
+  - {ticker: INDU-C.ST,   name: "Industrivarden C",        sector: "Financials"}
+  - {ticker: LATO-B.ST,   name: "Latour B",                sector: "Financials"}
+  - {ticker: SAAB-B.ST,   name: "Saab B",                  sector: "Industrials"}
+  - {ticker: EVO.ST,      name: "Evolution",               sector: "Consumer Discretionary"}
+  - {ticker: EQT.ST,      name: "EQT",                     sector: "Financials"}
+  - {ticker: ESSITY-B.ST, name: "Essity B",                sector: "Consumer Staples"}
+  - {ticker: SECU-B.ST,   name: "Securitas B",             sector: "Industrials"}
+  - {ticker: NIBE-B.ST,   name: "NIBE Industrier B",       sector: "Industrials"}
+  - {ticker: SBB-B.ST,    name: "SBB B",                   sector: "Real Estate"}
+  - {ticker: BALD-B.ST,   name: "Balder B",                sector: "Real Estate"}
+  - {ticker: CAST.ST,     name: "Castellum",               sector: "Real Estate"}
+  - {ticker: SAGA-B.ST,   name: "Sagax B",                 sector: "Real Estate"}
+  - {ticker: SKA-B.ST,    name: "Skanska B",               sector: "Industrials"}
+  - {ticker: NCC-B.ST,    name: "NCC B",                   sector: "Industrials"}
+  # Swedish Match acquired by Philip Morris in 2022, delisted
+  # ICA Gruppen acquired by ICA-handlarnas in 2023, delisted
+  - {ticker: AXFO.ST,     name: "Axfood",                  sector: "Consumer Staples"}
+  - {ticker: BEIA-B.ST,   name: "Beijer Alma B",           sector: "Industrials"}
+  - {ticker: BEIJ-B.ST,   name: "Beijer Ref B",            sector: "Industrials"}
+  - {ticker: TREL-B.ST,   name: "Trelleborg B",            sector: "Industrials"}
+  - {ticker: HOLM-B.ST,   name: "Holmen B",                sector: "Materials"}
+  - {ticker: BILL.ST,     name: "BillerudKorsnas",         sector: "Materials"}
+  - {ticker: MTG-B.ST,    name: "Modern Times Group B",    sector: "Communication"}
+  - {ticker: EPI-A.ST,    name: "Epiroc A",                sector: "Industrials"}
+  - {ticker: EPI-B.ST,    name: "Epiroc B",                sector: "Industrials"}
+  - {ticker: INDT.ST,     name: "Indutrade",               sector: "Industrials"}
+  - {ticker: ADDT-B.ST,   name: "Addtech B",               sector: "Industrials"}
+  - {ticker: LIFCO-B.ST,  name: "Lifco B",                 sector: "Industrials"}
+
+mid_cap:
+  - {ticker: BILI-A.ST,   name: "Bilia A",                 sector: "Consumer Discretionary"}
+  - {ticker: BHG.ST,      name: "BHG Group",               sector: "Consumer Discretionary"}
+  - {ticker: CLAS-B.ST,   name: "Clas Ohlson B",           sector: "Consumer Discretionary"}
+  - {ticker: BURE.ST,     name: "Bure Equity",             sector: "Financials"}
+  - {ticker: CRED-A.ST,   name: "Creades A",               sector: "Financials"}
+  - {ticker: SVOL-B.ST,   name: "Svolder B",               sector: "Financials"}
+  # Avanza/Nordnet/Norion/Resurs - ticker formats unclear on Yahoo, revisit with Borsdata
+  - {ticker: PEAB-B.ST,   name: "Peab B",                  sector: "Industrials"}
+  - {ticker: JM.ST,       name: "JM",                      sector: "Real Estate"}
+  - {ticker: WIHL.ST,     name: "Wihlborgs Fastigheter",   sector: "Real Estate"}
+  - {ticker: FABG.ST,     name: "Fabege",                  sector: "Real Estate"}
+  - {ticker: PNDX-B.ST,   name: "Pandox B",                sector: "Real Estate"}
+  - {ticker: ATRLJ-B.ST,  name: "Atrium Ljungberg B",      sector: "Real Estate"}
+  - {ticker: SAGA-D.ST,   name: "Sagax D",                 sector: "Real Estate"}
+  - {ticker: HUFV-A.ST,   name: "Hufvudstaden A",          sector: "Real Estate"}
+  - {ticker: HUSQ-B.ST,   name: "Husqvarna B",             sector: "Consumer Discretionary"}
+  - {ticker: DOM.ST,      name: "Dometic Group",           sector: "Consumer Discretionary"}
+  - {ticker: TROAX.ST,    name: "Troax Group",             sector: "Industrials"}
+  - {ticker: SYSR.ST,     name: "Systemair",               sector: "Industrials"}
+  - {ticker: LIAB.ST,     name: "Lindab International",    sector: "Industrials"}
+  - {ticker: HMS.ST,      name: "HMS Networks",            sector: "Technology"}
+  - {ticker: VITR.ST,     name: "Vitrolife",               sector: "Healthcare"}
+  - {ticker: BIOG-B.ST,   name: "Biogaia B",               sector: "Consumer Staples"}
+  - {ticker: SOBI.ST,     name: "Swedish Orphan Biovitrum",sector: "Healthcare"}
+  - {ticker: MIPS.ST,     name: "MIPS",                    sector: "Consumer Discretionary"}
+  - {ticker: THULE.ST,    name: "Thule Group",             sector: "Consumer Discretionary"}
+  - {ticker: HOFI.ST,     name: "Hoist Finance",           sector: "Financials"}
+  - {ticker: CINT.ST,     name: "Cint Group",              sector: "Technology"}
+  - {ticker: SINCH.ST,    name: "Sinch",                   sector: "Technology"}
+  - {ticker: INWI.ST,     name: "Inwido",                  sector: "Industrials"}
+  - {ticker: BUFAB.ST,    name: "Bufab",                   sector: "Industrials"}
+  - {ticker: AAK.ST,      name: "AAK",                     sector: "Consumer Staples"}
+  - {ticker: HPOL-B.ST,   name: "Hexpol B",                sector: "Materials"}
+
+# Hand-curated names eligible mainly for the Aggressive sleeve.
+# Edit freely. Note `rationale` — keep it short so it's useful in screens.
+curated_small_first_north:
+  - {ticker: LYKO-A.ST,   name: "Lyko Group A",            sector: "E-commerce/Beauty", rationale: "Nordic online beauty leader, taking share from physical retail."}
+  - {ticker: KAMBI.ST,    name: "Kambi Group",             sector: "Gaming/B2B",        rationale: "B2B sports betting tech, asset-light, exposure to US legalization."}
+  - {ticker: BETCO.ST,    name: "Betsson",                 sector: "Gaming",            rationale: "Profitable iGaming operator, dividend, ex-Sweden license diversification."}
+  - {ticker: VIMIAN.ST,   name: "Vimian Group",            sector: "Healthcare/Pets",   rationale: "Veterinary medtech roll-up, founder-aligned, recurring revenue."}
+  - {ticker: NOTE.ST,     name: "NOTE",                    sector: "Industrials",       rationale: "EMS contract manufacturer, defense and industrial exposure, strong order book."}
+  - {ticker: MILDEF.ST,   name: "MilDef Group",            sector: "Defense",           rationale: "Rugged IT for defense customers, structural Nordic defense spending uplift."}
+  - {ticker: NIVI-B.ST,   name: "Nivika Fastigheter B",    sector: "Real Estate",       rationale: "Growing regional property owner, founder-led, conservative balance sheet."}
+  - {ticker: EMBRAC-B.ST, name: "Embracer Group B",        sector: "Gaming",            rationale: "Restructuring video game holding, deep value if the split-up plays out."}
+  - {ticker: DOXA.ST,     name: "Doxa",                    sector: "Real Estate",       rationale: "Recent significant insider buying. Worth periodic look."}
+  - {ticker: STAR-B.ST,   name: "Starbreeze B",            sector: "Gaming",            rationale: "Speculative — Payday 3 turnaround. Aggressive sleeve only if thesis sharpens."}
+  - {ticker: CDON.ST,     name: "CDON Group",              sector: "E-commerce",        rationale: "Nordic marketplace turnaround under new management. Speculative."}
+  - {ticker: CIBUS.ST,    name: "Cibus Nordic Real Estate",sector: "Real Estate",       rationale: "Daily-goods anchored grocery property REIT, monthly dividend, defensive."}
+  - {ticker: NCAB.ST,     name: "NCAB Group",              sector: "Industrials",       rationale: "PCB design/distribution, asset-light, global growth, capital-efficient."}

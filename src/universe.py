@@ -1,0 +1,70 @@
+"""The investable universe.
+
+Loaded from `state/universe.yaml`. Three tiers:
+- large_cap, mid_cap   — Core sleeve candidates (also eligible for Aggressive)
+- curated_small_first_north — Aggressive sleeve candidates
+
+Phase 2 ships with hand-maintained lists. Once Borsdata API is wired up
+we can auto-refresh the large_cap and mid_cap tiers from the official
+exchange segmentation; the curated list stays manual.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
+
+import yaml
+
+from src.config import STATE_DIR
+
+UNIVERSE_FILE = STATE_DIR / "universe.yaml"
+
+
+class Tier(str, Enum):
+    LARGE_CAP = "large_cap"
+    MID_CAP = "mid_cap"
+    CURATED_SMALL = "curated_small_first_north"
+
+
+@dataclass(frozen=True)
+class UniverseEntry:
+    ticker: str
+    name: str
+    sector: str
+    tier: Tier
+    rationale: str | None = None  # only set for curated entries
+
+
+def load_universe(path: Path = UNIVERSE_FILE) -> list[UniverseEntry]:
+    """Flat list across all tiers."""
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    entries: list[UniverseEntry] = []
+    for tier in Tier:
+        for row in data.get(tier.value, []) or []:
+            entries.append(
+                UniverseEntry(
+                    ticker=row["ticker"],
+                    name=row["name"],
+                    sector=row.get("sector", "Unknown"),
+                    tier=tier,
+                    rationale=row.get("rationale"),
+                )
+            )
+    return entries
+
+
+def by_tier(entries: list[UniverseEntry]) -> dict[Tier, list[UniverseEntry]]:
+    out: dict[Tier, list[UniverseEntry]] = {t: [] for t in Tier}
+    for e in entries:
+        out[e.tier].append(e)
+    return out
+
+
+def find(ticker: str, entries: list[UniverseEntry] | None = None) -> UniverseEntry | None:
+    entries = entries or load_universe()
+    for e in entries:
+        if e.ticker == ticker:
+            return e
+    return None
