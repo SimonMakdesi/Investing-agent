@@ -30,12 +30,13 @@ from src.contexts import (
 )
 from src.data.insiders import InsiderTransaction, fetch_recent
 from src.data.prices import get_latest_closes
+from src.issuer_match import index_by_ticker
 from src.json_parse import JsonExtractError, extract_json
-from src.metrics import compute, index_insiders_by_issuer
+from src.metrics import compute
 from src.portfolio import Portfolio, Sleeve
 from src.reporting import build_weekly_report, send_email
 from src.risk import Action, TradeProposal, check_trade
-from src.universe import UniverseEntry, find, load_universe
+from src.universe import find, load_universe
 
 log = logging.getLogger(__name__)
 
@@ -55,21 +56,6 @@ def _accumulate(usage: dict, response_in: int, response_out: int, cache_read: in
     usage["cache_create"] = usage.get("cache_create", 0) + cache_create
 
 
-def _match_insiders_to_ticker(
-    entry: UniverseEntry,
-    by_issuer: dict[str, list[InsiderTransaction]],
-) -> list[InsiderTransaction]:
-    """Best-effort name match between universe entry and FI issuer names."""
-    name_lower = entry.name.lower()
-    short = name_lower.split()[0]
-    matches: list[InsiderTransaction] = []
-    for issuer, txs in by_issuer.items():
-        iss = issuer.lower()
-        if name_lower in iss or short in iss or iss.startswith(short):
-            matches.extend(txs)
-    return matches
-
-
 def run(dry_run: bool, send_email_flag: bool) -> int:
     _setup_logging()
     today = date.today()
@@ -80,8 +66,10 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
     portfolio_before = copy.deepcopy(portfolio)
 
     universe = load_universe()
-    log.info("Loaded portfolio (cash=%,.0f, holdings=%d) and universe (%d names)",
-             portfolio.cash_sek, len(portfolio.holdings), len(universe))
+    log.info(
+        "Loaded portfolio (cash=%s SEK, holdings=%d) and universe (%d names)",
+        f"{portfolio.cash_sek:,.0f}", len(portfolio.holdings), len(universe),
+    )
 
     # --- Data refresh ---
     log.info("Fetching prices for %d universe + %d held tickers ...",
@@ -96,13 +84,18 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
     log.info("Fetching insider transactions (last 7 days + last 90 for analyst lookup)")
     insiders_7d = fetch_recent(days_back=7)
     insiders_90d = fetch_recent(days_back=90)
-    by_issuer_90d = index_insiders_by_issuer(insiders_90d)
+    insiders_by_ticker_90d = index_by_ticker(insiders_90d, universe)
+    matched_count = sum(1 for txs in insiders_by_ticker_90d.values() if txs)
+    log.info(
+        "Insider matching: %d/%d universe tickers have >=1 insider tx in last 90d",
+        matched_count, len(universe),
+    )
 
     # --- Universe metrics ---
     log.info("Computing metrics for %d tickers ...", len(universe))
-    metrics_by_ticker: dict[str, "compute.__class__"] = {}
+    metrics_by_ticker = {}
     for entry in universe:
-        m = compute(entry.ticker, insiders_for_ticker=by_issuer_90d.get(entry.name, []))
+        m = compute(entry.ticker, insiders_for_ticker=insiders_by_ticker_90d.get(entry.ticker, []))
         if m is not None:
             metrics_by_ticker[entry.ticker] = m
     log.info("Built metrics for %d tickers", len(metrics_by_ticker))
@@ -150,7 +143,7 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
             angle=pick.get("angle", ""),
             sleeve_hint=pick.get("sleeve_hint", "either"),
             metrics=m,
-            insiders_for_ticker=by_issuer_90d.get(entry.name, []),
+            insiders_for_ticker=insiders_by_ticker_90d.get(entry.ticker, []),
             held_avg_cost=held.avg_cost if held else None,
         )
         resp = call_role("analyst", msg)

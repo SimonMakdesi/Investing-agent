@@ -114,7 +114,8 @@ def compute(
 def index_insiders_by_issuer(
     transactions: list[InsiderTransaction],
 ) -> dict[str, list[InsiderTransaction]]:
-    """Group insider transactions by issuer name (best-effort match to ticker later)."""
+    """Group insider transactions by raw issuer name. Use src.issuer_match for
+    ticker-level lookups (the issuer name does not equal our short universe name)."""
     out: dict[str, list[InsiderTransaction]] = {}
     for tx in transactions:
         out.setdefault(tx.issuer, []).append(tx)
