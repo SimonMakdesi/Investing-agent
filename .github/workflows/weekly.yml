@@ -1,13 +1,20 @@
 name: Weekly cycle
 
-# Sunday 18:00 Europe/Stockholm.
-# GitHub schedules are UTC. Stockholm = UTC+1 (winter) / UTC+2 (summer DST).
-# We run at 17:00 UTC — this is 18:00 in winter and 19:00 in summer.
-# Phase 3 will revisit this (run twice / use a job-internal time check / etc.)
+# Sunday 17:00 UTC = 18:00 winter / 19:00 summer in Stockholm.
+# Phase 3 may revisit (e.g. run twice / use a job-internal time check).
 on:
   schedule:
     - cron: "0 17 * * 0"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: true
+        type: choice
+        options:
+          - dry-run
+          - live
+        default: dry-run
 
 permissions:
   contents: write  # for committing state/ updates back to the repo
@@ -30,7 +37,33 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Phase 1 no-op
+      - name: Run weekly cycle
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BORSDATA_API_KEY: ${{ secrets.BORSDATA_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          REPORT_RECIPIENT: ${{ secrets.REPORT_RECIPIENT }}
         run: |
-          echo "Phase 1 plumbing — pipeline not yet implemented."
-          echo "Phase 2 will run: uv run python -m src.pipeline_weekly"
+          # Scheduled runs (no inputs) default to live.
+          # Manual workflow_dispatch defaults to dry-run for safety.
+          MODE="${{ github.event.inputs.mode || 'live' }}"
+          echo "Running pipeline in $MODE mode"
+          if [ "$MODE" = "live" ]; then
+            uv run python -m src.pipeline_weekly --live
+          else
+            uv run python -m src.pipeline_weekly --dry-run
+          fi
+
+      - name: Commit state updates (live runs only)
+        if: ${{ success() && (github.event.inputs.mode == 'live' || github.event_name == 'schedule') }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/ reports/ archive/ || true
+          if git diff --cached --quiet; then
+            echo "No state changes to commit."
+          else
+            git commit -m "Weekly cycle $(date -u +%Y-%m-%d)"
+            git push
+          fi
