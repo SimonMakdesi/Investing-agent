@@ -2,35 +2,42 @@
 
 ## 1. Market view
 
-Swedish large-caps broadly weak over the past three months, with industrials and defensives 8–15% off highs. The dominant signal this week was a cluster of very large insider purchases — most notably the Persson family in H&M and a board-level individual in Essity — suggesting insiders see value in the pullback. Constructive on quality consumer names at current prices; happy to hold 90% cash and build slowly as conviction is earned. No rush to deploy.
+Swedish equities broadly 10–25% off highs; insider conviction buying clustered in specific names suggests informed capital sees value at current levels. Three starter Core positions now open, all thesis-driven, all at ~4–5% sizing. Cash at 86.5% — intentionally high. No urgency to deploy further until analyst can verify fundamentals or a new high-conviction signal appears. Constructive but patient; the next few positions should be earned, not forced.
 
 ## 2. Holdings
 
 **HM-B.ST** — Core | Consumer Discretionary | opened 2026-05-24
-- **Thesis:** Controlling-family member (Karl-Johan Persson) bought ~1.2bn SEK across six transactions in eight days into an 11% drawdown. Among the strongest insider signals possible on a Swedish Large Cap. Starter position pending fundamental confirmation.
-- **Sell if:** Profit warning, gross margin collapse, or confirmed structural market-share loss to Shein/Temu — not on price weakness alone.
+- **Thesis:** Karl-Johan Persson bought ~1.2bn SEK across six transactions in eight days into an 11% drawdown — among the strongest insider signals possible on a Swedish Large Cap. Starter position pending fundamental confirmation.
+- **Sell if:** Profit warning, gross margin collapse, or confirmed structural market-share loss to Shein/Temu. Not on price weakness alone.
 - **Status:** `intact`
 
 **ESSITY-B.ST** — Core | Consumer Staples | opened 2026-05-24
-- **Thesis:** Cluster of insider buying led by ~190M SEK from one board-level individual (Åberg) across two dates, on a defensive hygiene/staples name sitting on its 200-day MA after an 8% drawdown. Steady cash-flow profile fits Core sleeve.
-- **Sell if:** Sustained margin deterioration (input costs structurally above pricing power), or insider thesis contradicted by a poor quarterly print.
+- **Thesis:** Cluster insider buying led by ~190M SEK from Åberg across two dates, on a defensive hygiene/staples name sitting on its 200-day MA after an 8% drawdown. Steady cash-flow profile fits Core sleeve.
+- **Sell if:** Sustained margin deterioration where input costs structurally exceed pricing power, or a poor quarterly print that contradicts the insider thesis.
+- **Status:** `intact`
+
+**THULE.ST** — Core | Consumer Discretionary | opened 2026-05-24
+- **Thesis:** Board member Blomquist bought ~22M SEK across three trades in eight days at ~226 SEK — concentrated personal capital on a quality Mid Cap brand 22% off highs. Insider signal is the trigger; brand durability justifies Core classification.
+- **Sell if:** Insider turns net seller, fundamentals reveal genuine earnings deterioration (not just cyclical softness), or price breaks decisively below ~205 SEK on news. Not on price weakness alone.
 - **Status:** `intact`
 
 ## 3. Watchlist
 
-**THULE.ST** — Board insider (Blomquist) bought ~22M SEK over eight days in a quality outdoor brand trading 22% off highs. Passed this week due to elevated volatility (37%) and single-insider signal. Revisit on next quarterly print or continued insider follow-through; entry interest around 230 SEK.
+**SECU-B.ST** — Eight-person insider cluster including CEO buying ~2.1M SEK on the same day after a ~10% pullback. Conviction 3; would act at ~148 SEK. Best-quality signal in this week's non-actionable names — first to revisit when fundamental data becomes available.
 
-**SOBI.ST** — Structurally attractive rare-disease pharma with a strong +43% 12-month trend. Screener mis-read paired option-exercise transactions as a buy — actual net is a disposal. No insider signal; not actionable at 52-week highs. Revisit on a 10–15% pullback with independent fundamental confirmation; interest around 380 SEK.
+**ASSA-B.ST** — Global quality compounder, -15% from highs, senior insider buy (333k SEK). Single and small signal; watchlist on brand quality alone. Entry interest ~315 SEK; upgrade to buy if insider follow-through or fundamentals confirm no guidance cut.
 
-**NCC-B.ST** — Cluster of genuine open-market CEO and executive buys in May while stock is 17% off highs. Cannot verify order book or project risk. Revisit when fundamental data available or price approaches ~180 SEK.
+**LIFCO-B.ST** — High-quality serial acquirer down 27% from highs with a 4.2M SEK senior insider buy. Cannot verify whether de-rating reflects genuine bargain or still-expensive correction. Entry interest ~270 SEK; needs fundamental data to act.
 
-**BILL.ST (BillerudKorsnäs)** — Mats Qviberg's ~13M SEK personal purchase is a high-quality contrarian signal in a 41%-down cyclical. Most other May insider activity was share-program mechanics (paired buy/sell), not conviction. Blocked by inability to assess balance sheet and dilution risk. Need quarterly numbers and net debt before acting.
+**NCC-B.ST** — CEO and five executives made genuine open-market purchases during a 14% drawdown. Signal is real but small (~1M SEK net of allocation mechanics). Blocked on inability to assess order backlog and project risk. Revisit near 180 SEK or when fundamental data available.
 
-**AAK.ST** — Defensive specialty-ingredients compounder, price stable on 200-day MA. Screener flagged as a buy but net insider activity is a sale (executives sold 5–10× what they bought on the same day). No actionable signal now; genuine Core candidate at ~225 SEK on a clean fundamental print.
+**BILL.ST** — Mats Qviberg's ~13.4M SEK personal purchase is the strongest contrarian signal in the watchlist. Still a falling knife (-41% over 12m) with unverifiable balance sheet risk. Revisit on price stabilisation above ~58–60 SEK post-Q2, or when leverage data confirms the balance sheet can survive a trough. Strip same-day buy/sell insiders from the cluster math — the real signal is Qviberg only.
+
+**NIVI-B.ST** — Single ~2.5M SEK insider buy on a small-cap property name down 20% from highs. Real estate needs balance-sheet data (LTV, debt maturity, NAV) to underwrite; not actionable on signal alone. Identify who Dahl is before re-evaluating.
 
 ## 4. Lessons learned / open questions
 
-- **Screener bug — net insider flow:** The screener is summing gross Förvärv rows while ignoring same-day Avyttring, producing false-positive buy signals. Confirmed on SOBI, AAK, and partially on BILL (NCC). Priority fix before next cycle: screener should compute *net* per-insider flow per day.
-- **Starter sizing is right for signal-only entries:** Both positions are ~5% of portfolio, taken without fundamental confirmation. This is the correct discipline — act on the signal, stay small until fundamentals confirm or deny.
-- **Open question:** When do we get access to quarterly fundamental data (revenue, margins, debt) for portfolio names? H&M and Essity both have pending confirmation needs — flag for Phase 4 data-source build.
-- **Persson family vs. typical insider:** Constitution notes insider buying is a "strong signal on Small/Mid Cap." The H&M buy is Large Cap, but at 1.2bn SEK from a controlling family, it arguably supersedes the usual Large Cap discount. Worth keeping this calibration in the lessons for future Large Cap screening.
+- **Screener bug — net insider flow (unresolved):** Screener is summing gross Förvärv rows while ignoring same-day Avyttring. Confirmed false positives on SOBI, AAK, BILL (partially). Priority fix before next cycle.
+- **Tilldelning vs. open-market buys:** Allocation/grant events inflate headline insider volumes. NCC is the clearest example this week — 1M SEK genuine open-market vs. multiples of that in routine Tilldelning. Always net out before citing a cluster.
+- **Starter sizing discipline is working:** Three positions at ~4–5% each, taken on signal without fundamental confirmation. This is correct — act on the signal, stay small, verify later. Adding was gated on analyst conviction, not on inertia or FOMO.
+- **Open question:** When does Phase 4 fundamental data (revenue, margins, debt) become available? SECU, ASSA, LIFCO, NCC, and BILL are all watch-listed specifically because the analyst cannot verify fundamentals. Several of these would likely become actionable buys with one quarter of data.

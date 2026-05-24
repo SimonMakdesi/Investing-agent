@@ -1,5 +1,5 @@
 {
-  "cash_sek": 90362.10020446777,
+  "cash_sek": 86509.90010070801,
   "holdings": {
     "HM-B.ST": {
       "ticker": "HM-B.ST",
@@ -16,6 +16,14 @@
       "sleeve": "core",
       "opened_at": "2026-05-24T12:09:31.132199+02:00",
       "sector": "Consumer Staples"
+    },
+    "THULE.ST": {
+      "ticker": "THULE.ST",
+      "shares": 17.0,
+      "avg_cost": 226.60000610351562,
+      "sleeve": "core",
+      "opened_at": "2026-05-24T20:05:52.039576+02:00",
+      "sector": "Consumer Discretionary"
     }
   },
   "inception_date": "2026-05-23T23:46:58.071406+02:00",
