@@ -1,6 +1,23 @@
 {
-  "cash_sek": 100000.0,
-  "holdings": {},
+  "cash_sek": 90362.10020446777,
+  "holdings": {
+    "HM-B.ST": {
+      "ticker": "HM-B.ST",
+      "shares": 29.0,
+      "avg_cost": 163.6999969482422,
+      "sleeve": "core",
+      "opened_at": "2026-05-24T12:09:31.131988+02:00",
+      "sector": "Consumer Discretionary"
+    },
+    "ESSITY-B.ST": {
+      "ticker": "ESSITY-B.ST",
+      "shares": 19.0,
+      "avg_cost": 257.3999938964844,
+      "sleeve": "core",
+      "opened_at": "2026-05-24T12:09:31.132199+02:00",
+      "sector": "Consumer Staples"
+    }
+  },
   "inception_date": "2026-05-23T23:46:58.071406+02:00",
   "initial_capital_sek": 100000.0
 }
