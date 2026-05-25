@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from datetime import date, timedelta
 
 from src.data.borsdata import BorsdataClient, Report
 
@@ -40,6 +41,11 @@ class Fundamentals:
     dividend_yield_pct: float | None            # div / current price
     pe_ttm: float | None                        # current price / trailing EPS
     earnings_per_share: float
+
+    # Earnings-date estimate (Börsdata doesn't expose a calendar API, so we
+    # extrapolate from the publication lag of recent reports).
+    next_report_estimated_date: date | None
+    next_report_days_until: int | None
 
     @property
     def has_data(self) -> bool:
@@ -95,6 +101,8 @@ def compute(client: BorsdataClient, ins_id: int, current_price: float | None = N
         if market_cap_msek > 0 and latest.free_cash_flow:
             fcf_yield = latest.free_cash_flow / market_cap_msek * 100
 
+    next_date, days_until = _estimate_next_report(r12)
+
     return Fundamentals(
         latest_revenue_msek=latest.revenues,
         latest_revenue_year=latest.year,
@@ -114,7 +122,60 @@ def compute(client: BorsdataClient, ins_id: int, current_price: float | None = N
         dividend_yield_pct=div_yield,
         pe_ttm=pe,
         earnings_per_share=latest.earnings_per_share,
+        next_report_estimated_date=next_date,
+        next_report_days_until=days_until,
     )
+
+
+def _estimate_next_report(r12: list[Report]) -> tuple[date | None, int | None]:
+    """Estimate when the next quarterly report will drop.
+
+    Strategy:
+    - Use the median publication lag (report_Date - report_End_Date) across
+      the last few quarters. For most Nordic large caps this is 21-35 days.
+    - The next quarter ends ~91 days after the latest one's report_End_Date.
+    - Expected next publication = next quarter end + median lag.
+
+    Returns (date, days_from_today). Either (None, None) if we can't estimate.
+    """
+    # We always need at least one report with a usable year/period to derive
+    # the next quarter end. report_date is optional (falls back to default lag).
+    quarters_with_q_end = [(r, _quarter_end(r)) for r in r12]
+    quarters_with_q_end = [(r, q) for r, q in quarters_with_q_end if q is not None]
+    if not quarters_with_q_end:
+        return None, None
+
+    latest_q_end = quarters_with_q_end[0][1]
+    next_q_end = latest_q_end + timedelta(days=91)
+
+    # Median publication lag in days from reports that have both q_end and report_date.
+    lags = [
+        (r.report_date - q).days
+        for r, q in quarters_with_q_end[:4]
+        if r.report_date is not None
+    ]
+    median_lag = sorted(lags)[len(lags) // 2] if lags else 28
+    median_lag = max(7, min(60, median_lag))  # clamp to plausible range
+
+    next_date = next_q_end + timedelta(days=median_lag)
+    days_until = (next_date - date.today()).days
+    return next_date, days_until
+
+
+def _quarter_end(report: Report) -> date | None:
+    """R12 rolling-12 reports include the end-of-period date as a parsable field
+    on the raw record. We carry it via report_date only; here we approximate the
+    most recent quarter end from year + period (period is 1-4 for the four
+    quarters)."""
+    if report.year <= 0 or report.period not in (1, 2, 3, 4):
+        return None
+    # Approximate end-of-quarter for the latest R12: assume non-broken fiscal year
+    quarter_end_month_day = {1: (3, 31), 2: (6, 30), 3: (9, 30), 4: (12, 31)}
+    m, d = quarter_end_month_day[report.period]
+    try:
+        return date(report.year, m, d)
+    except ValueError:
+        return None
 
 
 def format_for_analyst(f: Fundamentals) -> str:
@@ -145,6 +206,16 @@ def format_for_analyst(f: Fundamentals) -> str:
         f"div/share {f.dividend_per_share:.2f}   "
         f"div yield {_v(f.dividend_yield_pct, '%', '{:.2f}')}",
     ]
+    if f.next_report_estimated_date is not None and f.next_report_days_until is not None:
+        urgency = ""
+        if f.next_report_days_until <= 14:
+            urgency = "  <-- IMMINENT"
+        elif f.next_report_days_until <= 30:
+            urgency = "  <-- near-term"
+        lines.append(
+            f"  Next earnings:     est. ~{f.next_report_estimated_date.isoformat()} "
+            f"(~{f.next_report_days_until:+d} days from today){urgency}"
+        )
     return "\n".join(lines)
 
 
