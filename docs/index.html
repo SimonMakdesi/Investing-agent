@@ -3,147 +3,541 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Investing Agent — Dashboard</title>
+<meta http-equiv="refresh" content="300">
+<title>The Vault Ledger · Investing Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f9fafb; }
-  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-  table { width: 100%; }
-  th { text-align: left; font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: 600; padding: 10px 8px; border-bottom: 1px solid #e5e7eb; }
-  td { padding: 10px 8px; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+  :root {
+    --ink:        #2a1f12;
+    --ink-fade:   #5a4a32;
+    --gold:       #c9a961;
+    --gold-deep:  #8b6914;
+    --gold-bright:#e8c87a;
+    --bronze:     #a07d3c;
+    --parchment:  #f0e3c4;
+    --parchment-lit: #f7ebcd;
+    --parchment-shade: #d9c9a1;
+    --leather:    #1a0f08;
+    --leather-lit:#241509;
+    --blood:      #7c2120;
+    --blood-deep: #4a1212;
+    --moss:       #3d6b3a;
+    --moss-deep:  #234020;
+    --sapphire:   #1f3a5f;
+    --amber:      #9c6b1a;
+  }
+
+  /* ============ Body / wood-leather backdrop ============ */
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(70,40,15,0.35), transparent 60%),
+      radial-gradient(ellipse at 80% 90%, rgba(40,20,5,0.5), transparent 70%),
+      repeating-linear-gradient(
+        103deg,
+        #1a0f08 0px, #1a0f08 30px,
+        #1f1209 30px, #1f1209 32px,
+        #1a0f08 32px, #1a0f08 70px,
+        #150a05 70px, #150a05 72px),
+      #1a0f08;
+    min-height: 100vh;
+    background-attachment: fixed;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.16 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.55;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    z-index: 0;
+  }
+  main { position: relative; z-index: 1; }
+
+  /* ============ Typography ============ */
+  .display      { font-family: 'Cinzel', serif; letter-spacing: 0.04em; }
+  .heading      { font-family: 'Cinzel', serif; letter-spacing: 0.16em; text-transform: uppercase; }
+  .script       { font-family: 'IM Fell English', serif; font-style: italic; }
+  .smallcaps    { font-family: 'IM Fell English SC', serif; letter-spacing: 0.08em; }
+  .num          { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  /* ============ Parchment card ============ */
+  .scroll {
+    position: relative;
+    background:
+      radial-gradient(ellipse at 50% 0%, var(--parchment-lit), transparent 60%),
+      radial-gradient(ellipse at 100% 100%, var(--parchment-shade), transparent 70%),
+      linear-gradient(168deg, #f5e7c6 0%, #ecdcb6 50%, #e2cf9f 100%);
+    color: var(--ink);
+    border-radius: 4px;
+    box-shadow:
+      0 0 0 1px rgba(139, 105, 20, 0.6),
+      0 0 0 3px var(--leather-lit),
+      0 0 0 4px rgba(201, 169, 97, 0.45),
+      0 22px 50px rgba(0,0,0,0.55),
+      inset 0 0 60px rgba(120, 85, 30, 0.18);
+    padding: 32px 28px 28px;
+  }
+  .scroll::before {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='4'/><feColorMatrix values='0 0 0 0 0.4  0 0 0 0 0.3  0 0 0 0 0.15  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23p)'/></svg>");
+    opacity: 0.6;
+    mix-blend-mode: multiply;
+    border-radius: 4px;
+  }
+  .scroll::after {
+    /* gilt corner flourish */
+    content: "";
+    position: absolute; top: 6px; right: 6px; width: 38px; height: 38px;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%238b6914' stroke-width='1.2'><path d='M2 14 Q14 14 14 2'/><path d='M2 8 Q8 8 8 2'/><circle cx='20' cy='20' r='1.5' fill='%238b6914'/></svg>");
+    background-repeat: no-repeat;
+    opacity: 0.6;
+  }
+  .scroll > * { position: relative; z-index: 1; }
+
+  /* Each ornate section heading */
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--ink);
+    font-size: 14px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .section-title::before,
+  .section-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-deep), transparent);
+  }
+  .section-title .glyph {
+    color: var(--gold-deep);
+    font-size: 18px;
+    text-shadow: 0 0 4px rgba(201,169,97,0.5);
+  }
+
+  /* Crest at the top */
+  .crest {
+    width: 56px; height: 56px;
+    background: radial-gradient(circle, #1a0f08 0%, #0d0703 70%);
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 4px var(--leather-lit), 0 0 24px rgba(232,200,122,0.4), inset 0 0 16px rgba(0,0,0,0.6);
+    color: var(--gold-bright);
+    font-family: 'Cinzel', serif;
+    font-weight: 800;
+    font-size: 22px;
+  }
+
+  /* Hero P&L numbers — like loot drops */
+  .loot-value {
+    font-family: 'Cinzel', serif;
+    font-weight: 800;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    letter-spacing: 0.04em;
+    line-height: 1;
+    background: linear-gradient(180deg, #f5d97a 0%, #c9a961 55%, #8b6914 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.25);
+    filter: drop-shadow(0 0 8px rgba(232,200,122,0.35));
+  }
+  .loot-currency {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    font-size: 0.42em;
+    color: var(--gold);
+    letter-spacing: 0.18em;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .ledger-positive { color: var(--moss-deep); }
+  .ledger-negative { color: var(--blood); }
+
+  /* ============ Tables (ruled ledger lines) ============ */
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left;
+    font-family: 'IM Fell English SC', serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    padding: 10px 10px 8px;
+    border-bottom: 2px double var(--gold-deep);
+    background: linear-gradient(180deg, rgba(201,169,97,0.18), transparent);
+  }
+  tbody td {
+    padding: 11px 10px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(139,105,20,0.22);
+    color: var(--ink);
+  }
+  tbody tr {
+    transition: background-color 0.18s;
+  }
+  tbody tr:nth-child(even) td { background: rgba(139,105,20,0.04); }
+  tbody tr:hover td { background: rgba(232,200,122,0.18); }
+  tbody tr:last-child td { border-bottom: 1px solid var(--gold-deep); }
+
+  /* ============ Heraldic badges ============ */
+  .shield {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px 3px 7px;
+    font-family: 'IM Fell English SC', serif;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    background: rgba(255,255,255,0.35);
+  }
+  .shield-intact     { color: var(--moss-deep);    background: rgba(61,107,58,0.13); }
+  .shield-weakening  { color: var(--amber);        background: rgba(156,107,26,0.13); }
+  .shield-broken     { color: var(--blood);        background: rgba(124,33,32,0.12); }
+  .shield-unknown    { color: var(--ink-fade);     background: rgba(90,74,50,0.10); }
+  .shield svg        { width: 14px; height: 14px; flex: 0 0 14px; }
+
+  .guild {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    font-family: 'IM Fell English SC', serif;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+  }
+  .guild-core         { color: var(--sapphire);    background: rgba(31,58,95,0.10); }
+  .guild-aggressive   { color: var(--blood);       background: rgba(124,33,32,0.10); }
+
+  .role-mark {
+    display: inline-block;
+    padding: 2px 8px;
+    font-family: 'IM Fell English SC', serif;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+  }
+  .role-analyst   { color: var(--sapphire);  background: rgba(31,58,95,0.10); }
+  .role-pm        { color: var(--moss-deep); background: rgba(61,107,58,0.10); }
+  .role-executed  { color: var(--amber);     background: rgba(156,107,26,0.12); }
+  .role-other     { color: var(--ink-fade);  background: rgba(90,74,50,0.08); }
+
+  /* ============ Misc ============ */
+  .divider-ornate {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    position: relative;
+    margin: 18px 0;
+  }
+  .divider-ornate::before {
+    content: "❖";
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -55%);
+    color: var(--gold-deep);
+    background: var(--parchment-lit);
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(139,105,20,0.12);
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: var(--ink);
+    font-size: 11.5px;
+  }
+  a { color: var(--gold-deep); }
+
+  /* ============ Page-load reveal ============ */
+  @keyframes inscribe {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .scroll { animation: inscribe 0.7s ease-out both; }
+  .scroll:nth-child(2) { animation-delay: 0.08s; }
+  .scroll:nth-child(3) { animation-delay: 0.16s; }
+  .scroll:nth-child(4) { animation-delay: 0.24s; }
+  .scroll:nth-child(5) { animation-delay: 0.32s; }
+
+  /* Mobile padding tightening */
+  @media (max-width: 640px) {
+    .scroll { padding: 22px 18px 18px; }
+    .loot-value { font-size: 2.2rem; }
+    .section-title { font-size: 12px; letter-spacing: 0.16em; }
+    thead th { padding: 8px 6px; font-size: 10px; }
+    tbody td { padding: 8px 6px; font-size: 12.5px; }
+  }
 </style>
 </head>
-<body class="text-gray-800">
+<body>
 
-<div class="max-w-7xl mx-auto p-6 space-y-6">
+<main class="max-w-7xl mx-auto p-4 sm:p-8 space-y-6">
 
-  <header class="flex items-end justify-between flex-wrap gap-2">
-    <div>
-      <h1 class="text-3xl font-bold">Investing Agent</h1>
-      <p class="text-sm text-gray-500">Inception 2026-05-23 · Generated 2026-05-25T15:44</p>
-    </div>
-    <div class="text-right">
-      <div class="text-3xl font-bold text-green-600">100,166 SEK</div>
-      <div class="text-sm text-gray-600">
-        Portfolio <span class="text-green-600 font-semibold">+0.17%</span>
-        · OMXS30 <span class="text-green-600 font-semibold">+1.38%</span>
-        · Excess <span class="text-red-600 font-semibold">-1.22%</span>
+  <!-- ============ HEADER ============ -->
+  <header class="scroll">
+    <div class="flex items-start justify-between flex-wrap gap-6">
+      <div class="flex items-start gap-5">
+        <div class="crest">A</div>
+        <div>
+          <div class="smallcaps text-xs" style="color: var(--gold-deep);">— Vault Ledger of the —</div>
+          <h1 class="display text-3xl sm:text-4xl font-extrabold leading-tight" style="color: var(--ink);">Investing Agent</h1>
+          <div class="script text-sm mt-1" style="color: var(--ink-fade);">
+            Inaugurated on the <span class="num">2026-05-23</span> day of our reckoning ·
+            Hand last set down <span class="num">2026-05-25T15:58</span>
+          </div>
+        </div>
+      </div>
+      <div class="text-right min-w-[240px]">
+        <div class="smallcaps text-[11px]" style="color: var(--gold-deep);">Coffers Total</div>
+        <div class="loot-value ledger-positive">100,184<span class="loot-currency">SEK</span></div>
+        <div class="script mt-3 text-sm" style="color: var(--ink-fade);">
+          <span class="num ledger-positive">▲ +0.18%</span> against thine own coin ·
+          <span class="num ledger-positive">+1.44%</span> the OMXS30 ·
+          <span class="num ledger-negative">-1.25%</span> alpha
+        </div>
       </div>
     </div>
   </header>
 
+  <!-- ============ CHART + ALLOCATION ============ -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="card lg:col-span-2">
-      <h2 class="text-lg font-semibold mb-3">Portfolio value vs OMXS30</h2>
-      <canvas id="valueChart" height="120"></canvas>
+
+    <div class="scroll lg:col-span-2">
+      <h2 class="section-title"><span class="glyph">⚜</span> Treasury Through the Ages <span class="glyph">⚜</span></h2>
+      <div style="position: relative; height: 340px;">
+        <canvas id="valueChart"></canvas>
+      </div>
     </div>
-    <div class="card">
-      <h2 class="text-lg font-semibold mb-3">Allocation</h2>
-      <div class="grid grid-cols-2 gap-4">
+
+    <div class="scroll">
+      <h2 class="section-title"><span class="glyph">✦</span> Coinage <span class="glyph">✦</span></h2>
+      <div class="grid grid-cols-2 gap-3">
         <div>
-          <div class="text-xs text-gray-500 uppercase mb-2">Sleeve</div>
+          <div class="smallcaps text-[10px] text-center mb-2" style="color: var(--gold-deep);">— Guild —</div>
           <canvas id="sleeveChart" height="160"></canvas>
         </div>
         <div>
-          <div class="text-xs text-gray-500 uppercase mb-2">Sector</div>
+          <div class="smallcaps text-[10px] text-center mb-2" style="color: var(--gold-deep);">— Dominion —</div>
           <canvas id="sectorChart" height="160"></canvas>
         </div>
       </div>
-      <div class="mt-4 text-sm space-y-1">
-        <div class="flex justify-between"><span class="text-gray-500">Cash</span><span class="font-medium">86,510 SEK (86.4%)</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Equity</span><span class="font-medium">13,656 SEK (13.6%)</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Holdings</span><span class="font-medium">3</span></div>
+      <div class="divider-ornate"></div>
+      <div class="space-y-1.5 text-sm">
+        <div class="flex justify-between"><span class="smallcaps text-xs" style="color: var(--gold-deep);">Coin in hand</span><span class="num font-semibold">86,510 (86.4%)</span></div>
+        <div class="flex justify-between"><span class="smallcaps text-xs" style="color: var(--gold-deep);">Bound in shares</span><span class="num font-semibold">13,674 (13.6%)</span></div>
+        <div class="flex justify-between"><span class="smallcaps text-xs" style="color: var(--gold-deep);">Holdings</span><span class="num font-semibold">3</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ HOLDINGS ============ -->
+  <div class="scroll">
+    <h2 class="section-title"><span class="glyph">⚔</span> Sworn Holdings <span class="glyph">⚔</span></h2>
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr>
+          <th>Sigil</th><th>Dominion</th><th>Guild</th>
+          <th class="text-right">Shares</th><th class="text-right">Cost</th><th class="text-right">Now</th>
+          <th class="text-right">Value</th><th class="text-right">Stake</th><th class="text-right">Fortune</th>
+          <th>Oath</th><th class="text-right">Sworn</th>
+        </tr></thead>
+        <tbody><tr><td class='num font-semibold' style='color: var(--ink); letter-spacing:0.04em;'>HM-B.ST</td><td class='script' style='color: var(--ink-fade);'>Consumer Discretionary</td><td><span class='guild guild-core'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.3' aria-hidden='true' style='width:12px;height:12px;'><path d='M3 17 L5 8 L9 12 L12 6 L15 12 L19 8 L21 17 Z' fill='currentColor' fill-opacity='0.25'/><path d='M3 17 H21' stroke-width='1.5'/></svg>Core</span></td><td class='num text-right'>29</td><td class='num text-right'>163.70</td><td class='num text-right'>164.85</td><td class='num text-right font-semibold'>4,781</td><td class='num text-right'>4.8%</td><td class='num text-right font-bold ledger-positive'>▲ +0.7%</td><td><span class='shield shield-intact' title='intact'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 2 L20 5 V12 C20 17 16 21 12 22 C8 21 4 17 4 12 V5 Z' fill='currentColor' fill-opacity='0.15'/><path d='M12 8 C 9 11 9 15 12 17 C 15 15 15 11 12 8 Z' fill='currentColor' fill-opacity='0.55'/><path d='M12 8 V17' stroke-width='1'/></svg>Intact</span></td><td class='num text-right text-xs' style='color: var(--ink-fade);'>2026-05-24</td></tr>
+<tr><td class='num font-semibold' style='color: var(--ink); letter-spacing:0.04em;'>ESSITY-B.ST</td><td class='script' style='color: var(--ink-fade);'>Consumer Staples</td><td><span class='guild guild-core'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.3' aria-hidden='true' style='width:12px;height:12px;'><path d='M3 17 L5 8 L9 12 L12 6 L15 12 L19 8 L21 17 Z' fill='currentColor' fill-opacity='0.25'/><path d='M3 17 H21' stroke-width='1.5'/></svg>Core</span></td><td class='num text-right'>19</td><td class='num text-right'>257.40</td><td class='num text-right'>259.60</td><td class='num text-right font-semibold'>4,932</td><td class='num text-right'>4.9%</td><td class='num text-right font-bold ledger-positive'>▲ +0.9%</td><td><span class='shield shield-intact' title='intact'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 2 L20 5 V12 C20 17 16 21 12 22 C8 21 4 17 4 12 V5 Z' fill='currentColor' fill-opacity='0.15'/><path d='M12 8 C 9 11 9 15 12 17 C 15 15 15 11 12 8 Z' fill='currentColor' fill-opacity='0.55'/><path d='M12 8 V17' stroke-width='1'/></svg>Intact</span></td><td class='num text-right text-xs' style='color: var(--ink-fade);'>2026-05-24</td></tr>
+<tr><td class='num font-semibold' style='color: var(--ink); letter-spacing:0.04em;'>THULE.ST</td><td class='script' style='color: var(--ink-fade);'>Consumer Discretionary</td><td><span class='guild guild-core'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.3' aria-hidden='true' style='width:12px;height:12px;'><path d='M3 17 L5 8 L9 12 L12 6 L15 12 L19 8 L21 17 Z' fill='currentColor' fill-opacity='0.25'/><path d='M3 17 H21' stroke-width='1.5'/></svg>Core</span></td><td class='num text-right'>17</td><td class='num text-right'>226.60</td><td class='num text-right'>233.00</td><td class='num text-right font-semibold'>3,961</td><td class='num text-right'>4.0%</td><td class='num text-right font-bold ledger-positive'>▲ +2.8%</td><td><span class='shield shield-intact' title='intact'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 2 L20 5 V12 C20 17 16 21 12 22 C8 21 4 17 4 12 V5 Z' fill='currentColor' fill-opacity='0.15'/><path d='M12 8 C 9 11 9 15 12 17 C 15 15 15 11 12 8 Z' fill='currentColor' fill-opacity='0.55'/><path d='M12 8 V17' stroke-width='1'/></svg>Intact</span></td><td class='num text-right text-xs' style='color: var(--ink-fade);'>2026-05-24</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ DECISIONS ============ -->
+  <div class="scroll">
+    <h2 class="section-title"><span class="glyph">✶</span> Chronicle of Counsel <span class="glyph">✶</span></h2>
+    <p class="script text-sm mb-3" style="color: var(--ink-fade);">
+      Most recent first — verdicts of the Analyst, decrees of the Manager, deeds set in coin.
+      All <span class='num font-semibold'>20</span> entries set down below.
+    </p>
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr>
+          <th>Day</th><th>Sigil</th><th>Hand</th><th>Word</th><th>Counsel</th>
+        </tr></thead>
+        <tbody><tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>HM-B.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs' style='color: var(--ink-fade);'>- Controlling-family insider buying of ~1.2bn SEK across six transactions in eight days is among the strongest insider signals possible — the Persson family knows this business intimately and is buying with weakness, not strength.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>ESSITY-B.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs' style='color: var(--ink-fade);'>- Karl Åberg&#x27;s purchases (~190M SEK across May 12 and May 19) are exceptionally large in absolute terms — this is conviction-sized, not a token filing.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>SOBI.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>WATCH — not actionable now, keep on watchlist (conv 3)</td><td class='text-xs' style='color: var(--ink-fade);'>- Strong, sustained 12-month trend (+43.5%) with price ~28% above 200-day MA — the market has been rewarding the business consistently, not a speculative spike.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>THULE.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs' style='color: var(--ink-fade);'>- Three insider purchases totaling ~22 MSEK in eight days from the same individual (Curt Per-Arne Blomquist) — this is a large, concentrated, repeated buy, not a token disclosure trade.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>AAK.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs' style='color: var(--ink-fade);'>AAK is a Swedish specialty vegetable oils and fats supplier to food, confectionery, and personal care customers — a classic defensive compounder with sticky B2B relationships. The screener flagged a small insider buy and a price sitting fla</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>BILL.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs' style='color: var(--ink-fade);'>BillerudKorsnäs is a large-cap pulp &amp; packaging name down 41% over twelve months, now showing a cluster of insider buying — most notably a ~13M SEK purchase by Mats Qviberg, a well-known Swedish investor whose involvement typically signals </td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>NCC-B.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs' style='color: var(--ink-fade);'>NCC is a Nordic construction &amp; infrastructure group trading 17% off its 52-week high after a sharp 1-month drawdown, while management and senior executives have been buying small but real amounts of stock with their own money in the days fo</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>HM-B.ST</td><td><span class='role-mark role-pm'>Manager</span></td><td class='text-sm script' style='color: var(--ink);'>BUY 29 sh @ 172.0 SEK</td><td class='text-xs' style='color: var(--ink-fade);'>Acting on Persson-family ~1.2bn SEK buy into weakness — strongest possible insider signal on Large Cap; starter size pending fundamental confirmation.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>ESSITY-B.ST</td><td><span class='role-mark role-pm'>Manager</span></td><td class='text-sm script' style='color: var(--ink);'>BUY 19 sh @ 268.0 SEK</td><td class='text-xs' style='color: var(--ink-fade);'>Insider cluster including ~190M SEK from one board member on a defensive staples name at its 200d MA; starter Core position.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>THULE.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs' style='color: var(--ink-fade);'>- Three insider purchases by Curt Blomquist totaling ~22 MSEK in 8 days; this is meaningful personal capital, not symbolic.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>NCC-B.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs' style='color: var(--ink-fade);'>NCC is a Nordic construction and civil engineering group trading down ~14% in a month and ~17% off its 52-week high, while a broad set of insiders — including the CEO — have been buying in the open market alongside a routine share allocatio</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>BILL.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs' style='color: var(--ink-fade);'>BillerudKorsnäs has fallen 41% over twelve months and trades 22% below its 200-day MA, and an outside investor (Mats Qviberg) has put ~13.4 MSEK of personal capital to work on a single day at these depressed levels. The question is whether </td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>ASSA-B.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs' style='color: var(--ink-fade);'>- Wide-moat global franchise in a consolidating industry; Assa is the consolidator, which historically compounds capital well.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>SECU-B.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>WATCH — not actionable now, keep on watchlist (conv 3)</td><td class='text-xs' style='color: var(--ink-fade);'>Securitas is a large-cap, defensive industrial services name (physical security, electronic security, guarding) that just saw an unusually broad insider cluster — eight people including the CEO buying on the same day after a ~10% pullback f</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>LIFCO-B.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs' style='color: var(--ink-fade);'>- Best-in-class serial acquirer business model with a long history of disciplined capital allocation and decentralized operations.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>NIVI-B.ST</td><td><span class='role-mark role-analyst'>Analyst</span></td><td class='text-sm script' style='color: var(--ink);'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs' style='color: var(--ink-fade);'>- One clean, meaningful-size insider purchase (~2.5M SEK) — not a token buy, suggests genuine conviction from someone close to the business.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>THULE.ST</td><td><span class='role-mark role-pm'>Manager</span></td><td class='text-sm script' style='color: var(--ink);'>BUY 17 sh @ 230.0 SEK</td><td class='text-xs' style='color: var(--ink-fade);'>Concentrated ~22 MSEK insider buy by Blomquist on a quality Mid Cap brand 22% off highs — starter size pending fundamental confirmation.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>HM-B.ST</td><td><span class='role-mark role-executed'>Decree</span></td><td class='text-sm script' style='color: var(--ink);'>BUY 29 sh @ 163.70</td><td class='text-xs' style='color: var(--ink-fade);'>Acting on Persson-family ~1.2bn SEK buy into weakness — strongest possible insider signal on Large Cap; starter size pending fundamental confirmation.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>ESSITY-B.ST</td><td><span class='role-mark role-executed'>Decree</span></td><td class='text-sm script' style='color: var(--ink);'>BUY 19 sh @ 257.40</td><td class='text-xs' style='color: var(--ink-fade);'>Insider cluster including ~190M SEK from one board member on a defensive staples name at its 200d MA; starter Core position.</td></tr>
+<tr><td class='num text-xs whitespace-nowrap' style='color: var(--ink-fade);'>2026-05-24</td><td class='num font-semibold' style='color: var(--ink);'>THULE.ST</td><td><span class='role-mark role-executed'>Decree</span></td><td class='text-sm script' style='color: var(--ink);'>BUY 17 sh @ 226.60</td><td class='text-xs' style='color: var(--ink-fade);'>Concentrated ~22 MSEK insider buy by Blomquist on a quality Mid Cap brand 22% off highs — starter size pending fundamental confirmation.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ TOKEN USAGE ============ -->
+  <div class="scroll">
+    <h2 class="section-title"><span class="glyph">◈</span> The Oracle's Tariff <span class="glyph">◈</span></h2>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-5">
+      <div>
+        <div class="smallcaps text-[10px]" style="color: var(--gold-deep);">Consultations</div>
+        <div class="num text-2xl font-bold" style="color: var(--ink);">20</div>
+      </div>
+      <div>
+        <div class="smallcaps text-[10px]" style="color: var(--gold-deep);">Words Whispered</div>
+        <div class="num text-2xl font-bold" style="color: var(--ink);">67,761</div>
+      </div>
+      <div>
+        <div class="smallcaps text-[10px]" style="color: var(--gold-deep);">Words Returned</div>
+        <div class="num text-2xl font-bold" style="color: var(--ink);">25,577</div>
+      </div>
+      <div>
+        <div class="smallcaps text-[10px]" style="color: var(--gold-deep);">Memory Drawn</div>
+        <div class="num text-2xl font-bold" style="color: var(--ink);">41,586</div>
+      </div>
+      <div>
+        <div class="smallcaps text-[10px]" style="color: var(--gold-deep);">Tribute Paid</div>
+        <div class="num text-2xl font-bold" style="color: var(--gold-deep);">$1.54</div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <h2 class="text-lg font-semibold mb-3">Holdings</h2>
-    <div class="overflow-x-auto">
-      <table>
-        <thead><tr>
-          <th>Ticker</th><th>Sector</th><th>Sleeve</th>
-          <th class="text-right">Shares</th><th class="text-right">Avg cost</th><th class="text-right">Price</th>
-          <th class="text-right">Value</th><th class="text-right">% port</th><th class="text-right">P&amp;L</th>
-          <th>Thesis</th><th>Opened</th>
-        </tr></thead>
-        <tbody><tr><td class='font-mono'>HM-B.ST</td><td>Consumer Discretionary</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>core</span></td><td class='text-right'>29</td><td class='text-right'>163.70</td><td class='text-right'>164.70</td><td class='text-right'>4,776</td><td class='text-right'>4.8%</td><td class='text-right font-semibold text-green-600'>+0.6%</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-green-100 text-green-800'>intact</span></td><td class='text-xs text-gray-500'>2026-05-24</td></tr>
-<tr><td class='font-mono'>ESSITY-B.ST</td><td>Consumer Staples</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>core</span></td><td class='text-right'>19</td><td class='text-right'>257.40</td><td class='text-right'>259.40</td><td class='text-right'>4,929</td><td class='text-right'>4.9%</td><td class='text-right font-semibold text-green-600'>+0.8%</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-green-100 text-green-800'>intact</span></td><td class='text-xs text-gray-500'>2026-05-24</td></tr>
-<tr><td class='font-mono'>THULE.ST</td><td>Consumer Discretionary</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>core</span></td><td class='text-right'>17</td><td class='text-right'>226.60</td><td class='text-right'>232.40</td><td class='text-right'>3,951</td><td class='text-right'>3.9%</td><td class='text-right font-semibold text-green-600'>+2.6%</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-green-100 text-green-800'>intact</span></td><td class='text-xs text-gray-500'>2026-05-24</td></tr></tbody>
-      </table>
+  <!-- ============ FOOTER ============ -->
+  <footer class="text-center pt-2 pb-10">
+    <div class="script text-sm" style="color: rgba(232,200,122,0.65);">
+      ❦ A ledger of paper coin, kept for one keeper alone. Naught herein is counsel for any other soul. ❦
     </div>
-  </div>
-
-  <div class="card">
-    <h2 class="text-lg font-semibold mb-3">Recent decisions</h2>
-    <p class="text-sm text-gray-500 mb-2">Most recent first. Includes Analyst verdicts, PM proposals, and executed trades. Showing all 20 decisions.</p>
-    <div class="overflow-x-auto">
-      <table>
-        <thead><tr>
-          <th>Date</th><th>Ticker</th><th>Role</th><th>Headline</th><th>Context</th>
-        </tr></thead>
-        <tbody><tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>HM-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs text-gray-600'>- Controlling-family insider buying of ~1.2bn SEK across six transactions in eight days is among the strongest insider signals possible — the Persson family knows this business intimately and is buying with weakness, not strength.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>ESSITY-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs text-gray-600'>- Karl Åberg&#x27;s purchases (~190M SEK across May 12 and May 19) are exceptionally large in absolute terms — this is conviction-sized, not a token filing.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>SOBI.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 3)</td><td class='text-xs text-gray-600'>- Strong, sustained 12-month trend (+43.5%) with price ~28% above 200-day MA — the market has been rewarding the business consistently, not a speculative spike.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>THULE.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs text-gray-600'>- Three insider purchases totaling ~22 MSEK in eight days from the same individual (Curt Per-Arne Blomquist) — this is a large, concentrated, repeated buy, not a token disclosure trade.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>AAK.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>AAK is a Swedish specialty vegetable oils and fats supplier to food, confectionery, and personal care customers — a classic defensive compounder with sticky B2B relationships. The screener flagged a small insider buy and a price sitting fla</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>BILL.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>BillerudKorsnäs is a large-cap pulp &amp; packaging name down 41% over twelve months, now showing a cluster of insider buying — most notably a ~13M SEK purchase by Mats Qviberg, a well-known Swedish investor whose involvement typically signals </td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>NCC-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>NCC is a Nordic construction &amp; infrastructure group trading 17% off its 52-week high after a sharp 1-month drawdown, while management and senior executives have been buying small but real amounts of stock with their own money in the days fo</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>HM-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800'>PM</span></td><td class='text-sm'>BUY 29 sh @ 172.0 SEK</td><td class='text-xs text-gray-600'>Acting on Persson-family ~1.2bn SEK buy into weakness — strongest possible insider signal on Large Cap; starter size pending fundamental confirmation.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>ESSITY-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800'>PM</span></td><td class='text-sm'>BUY 19 sh @ 268.0 SEK</td><td class='text-xs text-gray-600'>Insider cluster including ~190M SEK from one board member on a defensive staples name at its 200d MA; starter Core position.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>THULE.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs text-gray-600'>- Three insider purchases by Curt Blomquist totaling ~22 MSEK in 8 days; this is meaningful personal capital, not symbolic.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>NCC-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>NCC is a Nordic construction and civil engineering group trading down ~14% in a month and ~17% off its 52-week high, while a broad set of insiders — including the CEO — have been buying in the open market alongside a routine share allocatio</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>BILL.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>BillerudKorsnäs has fallen 41% over twelve months and trades 22% below its 200-day MA, and an outside investor (Mats Qviberg) has put ~13.4 MSEK of personal capital to work on a single day at these depressed levels. The question is whether </td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>ASSA-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>- Wide-moat global franchise in a consolidating industry; Assa is the consolidator, which historically compounds capital well.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>SECU-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 3)</td><td class='text-xs text-gray-600'>Securitas is a large-cap, defensive industrial services name (physical security, electronic security, guarding) that just saw an unusually broad insider cluster — eight people including the CEO buying on the same day after a ~10% pullback f</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>LIFCO-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>- Best-in-class serial acquirer business model with a long history of disciplined capital allocation and decentralized operations.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>NIVI-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>- One clean, meaningful-size insider purchase (~2.5M SEK) — not a token buy, suggests genuine conviction from someone close to the business.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>THULE.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800'>PM</span></td><td class='text-sm'>BUY 17 sh @ 230.0 SEK</td><td class='text-xs text-gray-600'>Concentrated ~22 MSEK insider buy by Blomquist on a quality Mid Cap brand 22% off highs — starter size pending fundamental confirmation.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>HM-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>executed</span></td><td class='text-sm'>BUY 29 sh @ 163.70</td><td class='text-xs text-gray-600'>Acting on Persson-family ~1.2bn SEK buy into weakness — strongest possible insider signal on Large Cap; starter size pending fundamental confirmation.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>ESSITY-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>executed</span></td><td class='text-sm'>BUY 19 sh @ 257.40</td><td class='text-xs text-gray-600'>Insider cluster including ~190M SEK from one board member on a defensive staples name at its 200d MA; starter Core position.</td></tr>
-<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>THULE.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>executed</span></td><td class='text-sm'>BUY 17 sh @ 226.60</td><td class='text-xs text-gray-600'>Concentrated ~22 MSEK insider buy by Blomquist on a quality Mid Cap brand 22% off highs — starter size pending fundamental confirmation.</td></tr></tbody>
-      </table>
+    <div class="smallcaps text-[10px] mt-2" style="color: rgba(232,200,122,0.4);">
+      Inscribed by the Iron Quill of GitHub Actions
     </div>
-  </div>
-
-  <div class="card">
-    <h2 class="text-lg font-semibold mb-3">Anthropic token usage</h2>
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-      <div><div class="text-gray-500 text-xs uppercase">Total calls</div><div class="text-xl font-semibold">20</div></div>
-      <div><div class="text-gray-500 text-xs uppercase">Input tokens</div><div class="text-xl font-semibold">67,761</div></div>
-      <div><div class="text-gray-500 text-xs uppercase">Output tokens</div><div class="text-xl font-semibold">25,577</div></div>
-      <div><div class="text-gray-500 text-xs uppercase">Cache read</div><div class="text-xl font-semibold">41,586</div></div>
-      <div><div class="text-gray-500 text-xs uppercase">Est. cost (USD)</div><div class="text-xl font-semibold">$1.54</div></div>
-    </div>
-  </div>
-
-  <footer class="text-xs text-gray-400 text-center pt-4 pb-8">
-    Personal paper portfolio · Not investment advice · Auto-generated by GitHub Actions
   </footer>
 
-</div>
+</main>
 
 <script>
-const series = [{"date": "2026-05-23", "portfolio": 100000.0, "benchmark": 100000.0}, {"date": "2026-05-25", "portfolio": 100166.0, "benchmark": 101382.0}];
-const sleeveData = {"Core": 13655.699691772461, "Aggressive": 0.0, "Cash": 86509.90010070801};
-const sectorData = {"Consumer Discretionary": 8727.099807739258, "Consumer Staples": 4928.599884033203, "Cash": 86509.90010070801};
-const palette = ["#1d4ed8","#f59e0b","#10b981","#ef4444","#8b5cf6","#06b6d4","#ec4899","#84cc16","#6b7280","#f97316","#0ea5e9","#a855f7"];
+const series = [{"date": "2026-05-23", "portfolio": 100000.0, "benchmark": 100000.0}, {"date": "2026-05-25", "portfolio": 100184.0, "benchmark": 101438.0}];
+const sleeveData = {"Core": 13674.05029296875, "Aggressive": 0.0, "Cash": 86509.90010070801};
+const sectorData = {"Consumer Discretionary": 8741.650177001953, "Consumer Staples": 4932.400115966797, "Cash": 86509.90010070801};
+
+// Fantasy palette — gold, sapphire, blood, moss, bronze, parchment
+const fantasyPalette = ["#c9a961","#1f3a5f","#7c2120","#3d6b3a","#a07d3c","#5a4a32","#9c6b1a","#4a3d6b","#6b3a3a","#3a6b6b"];
+const ink = "#2a1f12";
+const gold = "#8b6914";
+const goldBright = "#c9a961";
+const parchmentEdge = "rgba(139,105,20,0.22)";
+
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.color = ink;
 
 new Chart(document.getElementById('valueChart'), {
   type: 'line',
   data: {
     labels: series.map(p => p.date),
     datasets: [
-      {label: 'Portfolio', data: series.map(p => p.portfolio), borderColor: '#1d4ed8', backgroundColor: 'rgba(29,78,216,0.08)', fill: true, tension: 0.2, pointRadius: 2},
-      {label: 'OMXS30 (normalized)', data: series.map(p => p.benchmark), borderColor: '#6b7280', borderDash: [6, 4], fill: false, tension: 0.2, pointRadius: 0},
+      {
+        label: 'Thy Treasury',
+        data: series.map(p => p.portfolio),
+        borderColor: '#8b6914',
+        backgroundColor: (ctx) => {
+          const {ctx: c, chartArea} = ctx.chart;
+          if (!chartArea) return 'rgba(201,169,97,0.18)';
+          const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          g.addColorStop(0, 'rgba(232,200,122,0.45)');
+          g.addColorStop(1, 'rgba(232,200,122,0.02)');
+          return g;
+        },
+        fill: true,
+        tension: 0.28,
+        pointRadius: 3,
+        pointBackgroundColor: '#8b6914',
+        pointBorderColor: '#f7ebcd',
+        pointBorderWidth: 1.5,
+        borderWidth: 2.5,
+      },
+      {
+        label: 'OMXS30 (the realm)',
+        data: series.map(p => p.benchmark),
+        borderColor: 'rgba(42,31,18,0.55)',
+        borderDash: [4, 5],
+        fill: false,
+        tension: 0.28,
+        pointRadius: 0,
+        borderWidth: 1.6,
+      },
     ],
   },
   options: {
     responsive: true,
+    maintainAspectRatio: false,
     interaction: {mode: 'index', intersect: false},
-    scales: {y: {ticks: {callback: v => v.toLocaleString() + ' kr'}}},
-    plugins: {legend: {position: 'bottom'}},
+    scales: {
+      x: {
+        grid: { color: 'rgba(139,105,20,0.10)', drawTicks: false },
+        ticks: { color: ink, font: {family: "'JetBrains Mono', monospace", size: 10} },
+        border: { color: parchmentEdge },
+      },
+      y: {
+        grid: { color: 'rgba(139,105,20,0.10)' },
+        ticks: {
+          callback: v => v.toLocaleString() + ' kr',
+          color: ink,
+          font: {family: "'JetBrains Mono', monospace", size: 10}
+        },
+        border: { color: parchmentEdge },
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          font: {family: "'IM Fell English SC', serif", size: 12},
+          color: ink,
+          boxWidth: 14,
+          boxHeight: 8,
+        }
+      },
+      tooltip: {
+        backgroundColor: '#1a0f08',
+        titleColor: goldBright,
+        bodyColor: '#f0e3c4',
+        borderColor: gold,
+        borderWidth: 1,
+        titleFont: {family: "'Cinzel', serif", size: 12},
+        bodyFont: {family: "'JetBrains Mono', monospace", size: 12},
+        padding: 10,
+      }
+    },
   },
 });
 
@@ -152,8 +546,43 @@ function donut(canvasId, data) {
   const values = labels.map(k => data[k]);
   new Chart(document.getElementById(canvasId), {
     type: 'doughnut',
-    data: {labels, datasets: [{data: values, backgroundColor: palette.slice(0, labels.length)}]},
-    options: {plugins: {legend: {position: 'bottom', labels: {boxWidth: 10, font: {size: 11}}}}},
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: fantasyPalette.slice(0, labels.length),
+        borderColor: '#1a0f08',
+        borderWidth: 1.5,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 10,
+            boxHeight: 10,
+            font: {family: "'IM Fell English SC', serif", size: 10.5},
+            color: ink,
+            padding: 6,
+          }
+        },
+        tooltip: {
+          backgroundColor: '#1a0f08',
+          titleColor: goldBright,
+          bodyColor: '#f0e3c4',
+          borderColor: gold,
+          borderWidth: 1,
+          titleFont: {family: "'Cinzel', serif", size: 11},
+          bodyFont: {family: "'JetBrains Mono', monospace", size: 11},
+          callbacks: {
+            label: (ctx) => `${ctx.label}: ${ctx.parsed.toLocaleString()} SEK`
+          }
+        }
+      }
+    },
   });
 }
 donut('sleeveChart', sleeveData);
