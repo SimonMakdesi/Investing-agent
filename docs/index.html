@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investing Agent — Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f9fafb; }
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  table { width: 100%; }
+  th { text-align: left; font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: 600; padding: 10px 8px; border-bottom: 1px solid #e5e7eb; }
+  td { padding: 10px 8px; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+</style>
+</head>
+<body class="text-gray-800">
+
+<div class="max-w-7xl mx-auto p-6 space-y-6">
+
+  <header class="flex items-end justify-between flex-wrap gap-2">
+    <div>
+      <h1 class="text-3xl font-bold">Investing Agent</h1>
+      <p class="text-sm text-gray-500">Inception 2026-05-23 · Generated 2026-05-25T15:11</p>
+    </div>
+    <div class="text-right">
+      <div class="text-3xl font-bold text-green-600">100,165 SEK</div>
+      <div class="text-sm text-gray-600">
+        Portfolio <span class="text-green-600 font-semibold">+0.16%</span>
+        · OMXS30 <span class="text-green-600 font-semibold">+1.33%</span>
+        · Excess <span class="text-red-600 font-semibold">-1.16%</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="card lg:col-span-2">
+      <h2 class="text-lg font-semibold mb-3">Portfolio value vs OMXS30</h2>
+      <canvas id="valueChart" height="120"></canvas>
+    </div>
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-3">Allocation</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <div class="text-xs text-gray-500 uppercase mb-2">Sleeve</div>
+          <canvas id="sleeveChart" height="160"></canvas>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 uppercase mb-2">Sector</div>
+          <canvas id="sectorChart" height="160"></canvas>
+        </div>
+      </div>
+      <div class="mt-4 text-sm space-y-1">
+        <div class="flex justify-between"><span class="text-gray-500">Cash</span><span class="font-medium">86,510 SEK (86.4%)</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Equity</span><span class="font-medium">13,655 SEK (13.6%)</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Holdings</span><span class="font-medium">3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="text-lg font-semibold mb-3">Holdings</h2>
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr>
+          <th>Ticker</th><th>Sector</th><th>Sleeve</th>
+          <th class="text-right">Shares</th><th class="text-right">Avg cost</th><th class="text-right">Price</th>
+          <th class="text-right">Value</th><th class="text-right">% port</th><th class="text-right">P&amp;L</th>
+          <th>Thesis</th><th>Opened</th>
+        </tr></thead>
+        <tbody><tr><td class='font-mono'>HM-B.ST</td><td>Consumer Discretionary</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>core</span></td><td class='text-right'>29</td><td class='text-right'>163.70</td><td class='text-right'>164.70</td><td class='text-right'>4,776</td><td class='text-right'>4.8%</td><td class='text-right font-semibold text-green-600'>+0.6%</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-green-100 text-green-800'>intact</span></td><td class='text-xs text-gray-500'>2026-05-24</td></tr>
+<tr><td class='font-mono'>ESSITY-B.ST</td><td>Consumer Staples</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>core</span></td><td class='text-right'>19</td><td class='text-right'>257.40</td><td class='text-right'>259.00</td><td class='text-right'>4,921</td><td class='text-right'>4.9%</td><td class='text-right font-semibold text-green-600'>+0.6%</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-green-100 text-green-800'>intact</span></td><td class='text-xs text-gray-500'>2026-05-24</td></tr>
+<tr><td class='font-mono'>THULE.ST</td><td>Consumer Discretionary</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>core</span></td><td class='text-right'>17</td><td class='text-right'>226.60</td><td class='text-right'>232.80</td><td class='text-right'>3,958</td><td class='text-right'>4.0%</td><td class='text-right font-semibold text-green-600'>+2.7%</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-green-100 text-green-800'>intact</span></td><td class='text-xs text-gray-500'>2026-05-24</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="text-lg font-semibold mb-3">Decision history</h2>
+    <p class="text-sm text-gray-500 mb-2">Most recent first. Includes every Analyst verdict, PM proposal, and executed trade.</p>
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Ticker</th><th>Role</th><th>Headline</th><th>Context</th>
+        </tr></thead>
+        <tbody><tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>HM-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs text-gray-600'>- Controlling-family insider buying of ~1.2bn SEK across six transactions in eight days is among the strongest insider signals possible — the Persson family knows this business intimately and is buying with weakness, not strength.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>ESSITY-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs text-gray-600'>- Karl Åberg&#x27;s purchases (~190M SEK across May 12 and May 19) are exceptionally large in absolute terms — this is conviction-sized, not a token filing.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>SOBI.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 3)</td><td class='text-xs text-gray-600'>- Strong, sustained 12-month trend (+43.5%) with price ~28% above 200-day MA — the market has been rewarding the business consistently, not a speculative spike.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>THULE.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs text-gray-600'>- Three insider purchases totaling ~22 MSEK in eight days from the same individual (Curt Per-Arne Blomquist) — this is a large, concentrated, repeated buy, not a token disclosure trade.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>AAK.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>AAK is a Swedish specialty vegetable oils and fats supplier to food, confectionery, and personal care customers — a classic defensive compounder with sticky B2B relationships. The screener flagged a small insider buy and a price sitting fla</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>BILL.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>BillerudKorsnäs is a large-cap pulp &amp; packaging name down 41% over twelve months, now showing a cluster of insider buying — most notably a ~13M SEK purchase by Mats Qviberg, a well-known Swedish investor whose involvement typically signals </td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>NCC-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>NCC is a Nordic construction &amp; infrastructure group trading 17% off its 52-week high after a sharp 1-month drawdown, while management and senior executives have been buying small but real amounts of stock with their own money in the days fo</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>HM-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800'>PM</span></td><td class='text-sm'>BUY 29 sh @ 172.0 SEK</td><td class='text-xs text-gray-600'>Acting on Persson-family ~1.2bn SEK buy into weakness — strongest possible insider signal on Large Cap; starter size pending fundamental confirmation.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>ESSITY-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800'>PM</span></td><td class='text-sm'>BUY 19 sh @ 268.0 SEK</td><td class='text-xs text-gray-600'>Insider cluster including ~190M SEK from one board member on a defensive staples name at its 200d MA; starter Core position.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>THULE.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>INTERESTING — fits Core sleeve (conv 3)</td><td class='text-xs text-gray-600'>- Three insider purchases by Curt Blomquist totaling ~22 MSEK in 8 days; this is meaningful personal capital, not symbolic.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>NCC-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>NCC is a Nordic construction and civil engineering group trading down ~14% in a month and ~17% off its 52-week high, while a broad set of insiders — including the CEO — have been buying in the open market alongside a routine share allocatio</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>BILL.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>BillerudKorsnäs has fallen 41% over twelve months and trades 22% below its 200-day MA, and an outside investor (Mats Qviberg) has put ~13.4 MSEK of personal capital to work on a single day at these depressed levels. The question is whether </td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>ASSA-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>- Wide-moat global franchise in a consolidating industry; Assa is the consolidator, which historically compounds capital well.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>SECU-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 3)</td><td class='text-xs text-gray-600'>Securitas is a large-cap, defensive industrial services name (physical security, electronic security, guarding) that just saw an unusually broad insider cluster — eight people including the CEO buying on the same day after a ~10% pullback f</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>LIFCO-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>- Best-in-class serial acquirer business model with a long history of disciplined capital allocation and decentralized operations.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>NIVI-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800'>analyst</span></td><td class='text-sm'>WATCH — not actionable now, keep on watchlist (conv 2)</td><td class='text-xs text-gray-600'>- One clean, meaningful-size insider purchase (~2.5M SEK) — not a token buy, suggests genuine conviction from someone close to the business.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>THULE.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800'>PM</span></td><td class='text-sm'>BUY 17 sh @ 230.0 SEK</td><td class='text-xs text-gray-600'>Concentrated ~22 MSEK insider buy by Blomquist on a quality Mid Cap brand 22% off highs — starter size pending fundamental confirmation.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>HM-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>executed</span></td><td class='text-sm'>BUY 29 sh @ 163.70</td><td class='text-xs text-gray-600'>Acting on Persson-family ~1.2bn SEK buy into weakness — strongest possible insider signal on Large Cap; starter size pending fundamental confirmation.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>ESSITY-B.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>executed</span></td><td class='text-sm'>BUY 19 sh @ 257.40</td><td class='text-xs text-gray-600'>Insider cluster including ~190M SEK from one board member on a defensive staples name at its 200d MA; starter Core position.</td></tr>
+<tr class='hover:bg-gray-50'><td class='text-xs text-gray-500 whitespace-nowrap'>2026-05-24</td><td class='font-mono text-sm'>THULE.ST</td><td><span class='inline-block px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800'>executed</span></td><td class='text-sm'>BUY 17 sh @ 226.60</td><td class='text-xs text-gray-600'>Concentrated ~22 MSEK insider buy by Blomquist on a quality Mid Cap brand 22% off highs — starter size pending fundamental confirmation.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="text-lg font-semibold mb-3">Anthropic token usage</h2>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+      <div><div class="text-gray-500 text-xs uppercase">Total calls</div><div class="text-xl font-semibold">20</div></div>
+      <div><div class="text-gray-500 text-xs uppercase">Input tokens</div><div class="text-xl font-semibold">67,761</div></div>
+      <div><div class="text-gray-500 text-xs uppercase">Output tokens</div><div class="text-xl font-semibold">25,577</div></div>
+      <div><div class="text-gray-500 text-xs uppercase">Cache read</div><div class="text-xl font-semibold">41,586</div></div>
+      <div><div class="text-gray-500 text-xs uppercase">Est. cost (USD)</div><div class="text-xl font-semibold">$1.54</div></div>
+    </div>
+  </div>
+
+  <footer class="text-xs text-gray-400 text-center pt-4 pb-8">
+    Personal paper portfolio · Not investment advice · Auto-generated by GitHub Actions
+  </footer>
+
+</div>
+
+<script>
+const series = [{"date": "2026-05-23", "portfolio": 100000.0, "benchmark": 100000.0}, {"date": "2026-05-25", "portfolio": 100165.0, "benchmark": 101329.0}];
+const sleeveData = {"Core": 13654.899963378906, "Aggressive": 0.0, "Cash": 86509.90010070801};
+const sectorData = {"Consumer Discretionary": 8733.899963378906, "Consumer Staples": 4921.0, "Cash": 86509.90010070801};
+const palette = ["#1d4ed8","#f59e0b","#10b981","#ef4444","#8b5cf6","#06b6d4","#ec4899","#84cc16","#6b7280","#f97316","#0ea5e9","#a855f7"];
+
+new Chart(document.getElementById('valueChart'), {
+  type: 'line',
+  data: {
+    labels: series.map(p => p.date),
+    datasets: [
+      {label: 'Portfolio', data: series.map(p => p.portfolio), borderColor: '#1d4ed8', backgroundColor: 'rgba(29,78,216,0.08)', fill: true, tension: 0.2, pointRadius: 2},
+      {label: 'OMXS30 (normalized)', data: series.map(p => p.benchmark), borderColor: '#6b7280', borderDash: [6, 4], fill: false, tension: 0.2, pointRadius: 0},
+    ],
+  },
+  options: {
+    responsive: true,
+    interaction: {mode: 'index', intersect: false},
+    scales: {y: {ticks: {callback: v => v.toLocaleString() + ' kr'}}},
+    plugins: {legend: {position: 'bottom'}},
+  },
+});
+
+function donut(canvasId, data) {
+  const labels = Object.keys(data);
+  const values = labels.map(k => data[k]);
+  new Chart(document.getElementById(canvasId), {
+    type: 'doughnut',
+    data: {labels, datasets: [{data: values, backgroundColor: palette.slice(0, labels.length)}]},
+    options: {plugins: {legend: {position: 'bottom', labels: {boxWidth: 10, font: {size: 11}}}}},
+  });
+}
+donut('sleeveChart', sleeveData);
+donut('sectorChart', sectorData);
+</script>
+
+</body>
+</html>

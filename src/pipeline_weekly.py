@@ -22,6 +22,7 @@ from pathlib import Path
 
 from src.claude_client import call_role
 from src.config import REPORTS_DIR, STOCKHOLM_TZ, THESES_FILE
+from src.dashboard import build_and_write_dashboard
 from src.contexts import (
     analyst_user_message,
     journal_keeper_user_message,
@@ -310,6 +311,14 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
     if send_email_flag:
         subject = f"[Investing Agent {'DRY RUN' if dry_run else ''}] Weekly Report {today.isoformat()}"
         send_email(subject=subject.strip(), body_markdown=report_md)
+
+    # Rebuild the GitHub Pages dashboard (always — even on dry runs so we can
+    # preview locally). The dashboard is fully derived from state + archives,
+    # so re-running it is idempotent.
+    try:
+        build_and_write_dashboard()
+    except Exception as e:
+        log.warning("Dashboard generation failed: %s (non-fatal)", e)
 
     log.info("=== Weekly cycle complete ===")
     return 0
