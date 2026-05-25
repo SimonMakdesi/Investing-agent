@@ -93,6 +93,14 @@ def _load_archived_claude_calls() -> list[dict]:
     return out
 
 
+def _count_archived_calls() -> int:
+    """Total count of archived Claude calls (filenames only; no JSON parsing)."""
+    arc_dir = ARCHIVE_DIR / "claude_calls"
+    if not arc_dir.exists():
+        return 0
+    return sum(1 for _ in arc_dir.glob("*.json"))
+
+
 # --- Portfolio value over time --------------------------------------------
 
 def _build_value_series(portfolio: Portfolio, transactions: list[dict]) -> list[TimeSeriesPoint]:
@@ -419,6 +427,8 @@ def _render_html(
         for h in holdings
     ) or "<tr><td colspan='11' class='text-center text-gray-400 py-8'>No holdings yet — portfolio is 100% cash.</td></tr>"
 
+    DECISION_DISPLAY_LIMIT = 30
+    decisions_shown = decisions[:DECISION_DISPLAY_LIMIT]
     decision_rows = "\n".join(
         f"<tr class='hover:bg-gray-50'>"
         f"<td class='text-xs text-gray-500 whitespace-nowrap'>{html.escape(d.iso_date)}</td>"
@@ -426,8 +436,14 @@ def _render_html(
         f"<td>{_role_badge(d.role)}</td>"
         f"<td class='text-sm'>{html.escape(d.headline)}</td>"
         f"<td class='text-xs text-gray-600'>{html.escape(d.detail)}</td></tr>"
-        for d in decisions[:200]
+        for d in decisions_shown
     ) or "<tr><td colspan='5' class='text-center text-gray-400 py-8'>No decisions yet.</td></tr>"
+    decisions_footnote = (
+        f"Showing {len(decisions_shown)} of {len(decisions)}. "
+        "Older decisions preserved in git: <code>archive/claude_calls/</code> + <code>reports/</code>."
+    ) if len(decisions) > DECISION_DISPLAY_LIMIT else (
+        f"Showing all {len(decisions)} decisions."
+    )
 
     generated_at = datetime.now().isoformat(timespec="minutes")
     inception = portfolio.inception_date.date().isoformat()
@@ -508,8 +524,8 @@ def _render_html(
   </div>
 
   <div class="card">
-    <h2 class="text-lg font-semibold mb-3">Decision history</h2>
-    <p class="text-sm text-gray-500 mb-2">Most recent first. Includes every Analyst verdict, PM proposal, and executed trade.</p>
+    <h2 class="text-lg font-semibold mb-3">Recent decisions</h2>
+    <p class="text-sm text-gray-500 mb-2">Most recent first. Includes Analyst verdicts, PM proposals, and executed trades. {decisions_footnote}</p>
     <div class="overflow-x-auto">
       <table>
         <thead><tr>
