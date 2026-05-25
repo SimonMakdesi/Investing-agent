@@ -90,19 +90,15 @@ def analyst_user_message(
     angle: str,
     sleeve_hint: str,
     metrics: TickerMetrics,
-    insiders_for_ticker: list[InsiderTransaction],
+    insider_block: str,
     held_avg_cost: float | None,
+    fundamentals_block: str = "  (fundamentals data not available)",
 ) -> str:
-    if insiders_for_ticker:
-        insider_lines = "\n".join(
-            f"  {t.publication_date}  {t.person[:24]:24s}  "
-            f"{t.transaction_type:20s}  "
-            f"{t.total_value_sek:>12,.0f} SEK"
-            for t in sorted(insiders_for_ticker, key=lambda t: t.publication_date, reverse=True)[:15]
-        )
-    else:
-        insider_lines = "  (no insider transactions on this name in the last 90 days)"
+    """Build the Analyst's user-message payload.
 
+    `insider_block` and `fundamentals_block` are pre-formatted text from
+    src.data.borsdata_insiders and src.data.fundamentals respectively.
+    """
     held_block = (
         f"CURRENTLY HELD: yes, cost basis = {held_avg_cost:.2f} SEK/share"
         if held_avg_cost is not None
@@ -118,7 +114,8 @@ def analyst_user_message(
         f"SLEEVE HINT FROM SCREENER: {sleeve_hint}\n\n"
         f"{held_block}\n\n"
         f"PRICE METRICS:\n  {metrics.one_liner()}\n\n"
-        f"INSIDER ACTIVITY (last 90d on this name):\n{insider_lines}\n\n"
+        f"FUNDAMENTALS (Börsdata, rolling 12-month):\n{fundamentals_block}\n\n"
+        f"INSIDER ACTIVITY (last 90d, equity-program transactions excluded):\n{insider_block}\n\n"
         f"DOSSIER (prior notes):\n(no dossier on file yet — this is the first time we look at this name)\n"
     )
 

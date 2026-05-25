@@ -28,7 +28,11 @@ from src.contexts import (
     portfolio_manager_user_message,
     screener_user_message,
 )
-from src.data.insiders import InsiderTransaction, fetch_recent
+from src.data.borsdata import BorsdataClient, BorsdataError
+from src.data.borsdata_insiders import fetch_summaries_for_universe, format_summary_for_analyst
+from src.data.fundamentals import compute as compute_fundamentals
+from src.data.fundamentals import format_for_analyst as format_fundamentals
+from src.data.insiders import fetch_recent
 from src.data.prices import get_latest_closes
 from src.issuer_match import index_by_ticker
 from src.json_parse import JsonExtractError, extract_json
@@ -81,15 +85,28 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
     prices = {t: s.close for t, s in snapshots.items()}
     log.info("Got prices for %d/%d tickers", len(prices), len(all_tickers))
 
-    log.info("Fetching insider transactions (last 7 days + last 90 for analyst lookup)")
+    log.info("Fetching insider transactions (FI, last 7 days for Screener wide-angle view)")
     insiders_7d = fetch_recent(days_back=7)
-    insiders_90d = fetch_recent(days_back=90)
-    insiders_by_ticker_90d = index_by_ticker(insiders_90d, universe)
-    matched_count = sum(1 for txs in insiders_by_ticker_90d.values() if txs)
-    log.info(
-        "Insider matching: %d/%d universe tickers have >=1 insider tx in last 90d",
-        matched_count, len(universe),
-    )
+
+    # Per-ticker insider data now sourced from Börsdata (clean, equityProgram filtered).
+    # FI continues to power the Screener's wide-angle "what's happening on the exchange"
+    # view because the issuer-level names are useful to humans browsing the report.
+    borsdata: BorsdataClient | None = None
+    insider_summaries: dict = {}
+    try:
+        borsdata = BorsdataClient()
+        universe_yahoo = [e.ticker for e in universe]
+        insider_summaries = fetch_summaries_for_universe(borsdata, universe_yahoo, window_days=90)
+        log.info(
+            "Börsdata insider summaries: %d/%d tickers have conviction-grade activity in last 90d",
+            len(insider_summaries), len(universe),
+        )
+    except BorsdataError as e:
+        log.warning("Börsdata unavailable: %s — falling back to FI-only insider data", e)
+
+    # Legacy FI-derived per-ticker index, used as fallback when Börsdata is unavailable
+    # AND to drive the metric line on the universe view.
+    insiders_by_ticker_90d = index_by_ticker(fetch_recent(days_back=90), universe)
 
     # --- Universe metrics ---
     log.info("Computing metrics for %d tickers ...", len(universe))
@@ -137,13 +154,33 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
             log.warning("No metrics for picked ticker %s — skipping", ticker)
             continue
         held = portfolio.holdings.get(ticker)
+        # Fundamentals (Börsdata, R12 reports) — the big new context block
+        fundamentals_block = "  (fundamentals unavailable — Börsdata not reachable or ticker not mapped)"
+        if borsdata is not None:
+            ins_id = borsdata.yahoo_to_ins_id.get(ticker)
+            if ins_id is not None:
+                f = compute_fundamentals(borsdata, ins_id, current_price=prices.get(ticker))
+                if f is not None:
+                    fundamentals_block = format_fundamentals(f)
+                else:
+                    log.warning("No fundamentals computed for %s (insId=%d)", ticker, ins_id)
+            else:
+                log.warning("No Börsdata insId for %s", ticker)
+
+        # Insider block — prefer Börsdata's equity-program-filtered summary
+        if ticker in insider_summaries:
+            insider_block = format_summary_for_analyst(insider_summaries[ticker], window_days=90)
+        else:
+            insider_block = "  (no conviction-grade insider transactions in the last 90 days)"
+
         msg = analyst_user_message(
             today=today,
             entry=entry,
             angle=pick.get("angle", ""),
             sleeve_hint=pick.get("sleeve_hint", "either"),
             metrics=m,
-            insiders_for_ticker=insiders_by_ticker_90d.get(entry.ticker, []),
+            insider_block=insider_block,
+            fundamentals_block=fundamentals_block,
             held_avg_cost=held.avg_cost if held else None,
         )
         resp = call_role("analyst", msg)
