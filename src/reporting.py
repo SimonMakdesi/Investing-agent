@@ -10,6 +10,8 @@ import logging
 import smtplib
 from email.message import EmailMessage
 
+import markdown as md_lib
+
 from src.config import settings
 
 log = logging.getLogger(__name__)
@@ -17,9 +19,82 @@ log = logging.getLogger(__name__)
 GMAIL_SMTP_HOST = "smtp.gmail.com"
 GMAIL_SMTP_PORT = 465  # SSL
 
+# Inline CSS — Gmail strips <style> in some cases but keeps it more reliably
+# when scoped tight and modest. Keep this small and conservative.
+EMAIL_CSS = """
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #222;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  background: #ffffff;
+}
+h1 { font-size: 26px; margin: 0 0 4px; border-bottom: 2px solid #1f2937; padding-bottom: 6px; }
+h2 { font-size: 20px; margin: 28px 0 10px; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+h3 { font-size: 17px; margin: 22px 0 8px; color: #374151; }
+h4 { font-size: 15px; margin: 16px 0 6px; color: #4b5563; }
+p { margin: 10px 0; }
+ul, ol { margin: 10px 0; padding-left: 24px; }
+li { margin: 4px 0; }
+strong { color: #111827; }
+em { color: #6b7280; }
+blockquote {
+  border-left: 4px solid #fbbf24;
+  background: #fffbeb;
+  margin: 14px 0;
+  padding: 10px 14px;
+  color: #78350f;
+  border-radius: 4px;
+}
+code {
+  background: #f3f4f6;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: #be185d;
+}
+pre {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 12px 14px;
+  overflow-x: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #111827;
+}
+pre code { background: transparent; padding: 0; color: inherit; }
+table { border-collapse: collapse; margin: 12px 0; width: 100%; font-size: 14px; }
+th, td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; vertical-align: top; }
+th { background: #f3f4f6; font-weight: 600; }
+tr:nth-child(even) td { background: #fafafa; }
+hr { border: 0; border-top: 1px solid #e5e7eb; margin: 28px 0; }
+a { color: #1d4ed8; }
+"""
+
+
+def _markdown_to_html(md: str) -> str:
+    html_body = md_lib.markdown(md, extensions=["tables", "fenced_code"])
+    return (
+        "<!DOCTYPE html><html><head>"
+        f"<meta charset='utf-8'><style>{EMAIL_CSS}</style>"
+        "</head><body>"
+        f"{html_body}"
+        "</body></html>"
+    )
+
 
 def send_email(subject: str, body_markdown: str, recipient: str | None = None) -> None:
-    """Send a plain-text + markdown email. Raises on failure."""
+    """Send the email with both plain-text (markdown source) and styled HTML alternatives.
+
+    Email clients that support HTML (Gmail, Apple Mail, Outlook) render the
+    styled version. Plain-text clients see the original markdown source.
+    """
     settings.require("gmail_address", "gmail_app_password")
     to_addr = recipient or settings.report_recipient or settings.gmail_address
     if not to_addr:
@@ -30,24 +105,13 @@ def send_email(subject: str, body_markdown: str, recipient: str | None = None) -
     msg["From"] = settings.gmail_address
     msg["To"] = to_addr
     msg.set_content(body_markdown)
-    # A trivial HTML alternative so most clients render line breaks; we keep it
-    # minimal because the report is designed to be readable as plain text.
-    html_body = f"<pre style='font-family: ui-monospace, Menlo, monospace; white-space: pre-wrap;'>{_escape_html(body_markdown)}</pre>"
-    msg.add_alternative(html_body, subtype="html")
+    msg.add_alternative(_markdown_to_html(body_markdown), subtype="html")
 
     log.info("Sending email to %s (subject: %s)", to_addr, subject)
     with smtplib.SMTP_SSL(GMAIL_SMTP_HOST, GMAIL_SMTP_PORT, timeout=30) as smtp:
         smtp.login(settings.gmail_address, settings.gmail_app_password)
         smtp.send_message(msg)
     log.info("Email sent")
-
-
-def _escape_html(s: str) -> str:
-    return (
-        s.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-    )
 
 
 # --- Weekly report builder -------------------------------------------------

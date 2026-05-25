@@ -4,7 +4,13 @@ name: Daily light cycle
 on:
   schedule:
     - cron: "0 17 * * 1-5"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      always_email:
+        description: 'Send email even if no flags (testing)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -27,7 +33,29 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Phase 1 no-op
+      - name: Run daily cycle
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BORSDATA_API_KEY: ${{ secrets.BORSDATA_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          REPORT_RECIPIENT: ${{ secrets.REPORT_RECIPIENT }}
         run: |
-          echo "Phase 1 plumbing — daily monitor not yet implemented."
-          echo "Phase 2 will run: uv run python -m src.pipeline_daily"
+          if [ "${{ github.event.inputs.always_email }}" = "true" ]; then
+            uv run python -m src.pipeline_daily --always-email
+          else
+            uv run python -m src.pipeline_daily
+          fi
+
+      - name: Commit daily report (if any)
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/ archive/ || true
+          if git diff --cached --quiet; then
+            echo "No daily report changes to commit."
+          else
+            git commit -m "Daily check $(date -u +%Y-%m-%d)"
+            git push
+          fi
