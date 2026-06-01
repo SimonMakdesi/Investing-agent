@@ -34,6 +34,7 @@ from src.data.borsdata_insiders import fetch_summaries_for_universe, format_summ
 from src.data.fundamentals import compute as compute_fundamentals
 from src.data.fundamentals import format_for_analyst as format_fundamentals
 from src.data.insiders import fetch_recent
+from src.data.news import fetch_and_classify, format_for_analyst as format_news_for_analyst
 from src.data.prices import get_latest_closes
 from src.issuer_match import index_by_ticker
 from src.json_parse import JsonExtractError, extract_json
@@ -174,6 +175,15 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
         else:
             insider_block = "  (no conviction-grade insider transactions in the last 90 days)"
 
+        # Recent news — fetch + classify for this pick only (keeps weekly cost
+        # bounded; full universe news would balloon Sonnet calls)
+        try:
+            news_items, _, _ = fetch_and_classify(entry)
+            news_block = format_news_for_analyst(news_items, since_days=30, min_materiality=3)
+        except Exception as e:
+            log.warning("News fetch/classify failed for %s: %s", ticker, e)
+            news_block = "  (news pipeline unavailable this cycle)"
+
         msg = analyst_user_message(
             today=today,
             entry=entry,
@@ -183,6 +193,7 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
             insider_block=insider_block,
             fundamentals_block=fundamentals_block,
             held_avg_cost=held.avg_cost if held else None,
+            news_block=news_block,
         )
         resp = call_role("analyst", msg)
         _accumulate(usage_total, resp.input_tokens, resp.output_tokens,

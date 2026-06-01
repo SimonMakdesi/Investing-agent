@@ -93,11 +93,11 @@ def analyst_user_message(
     insider_block: str,
     held_avg_cost: float | None,
     fundamentals_block: str = "  (fundamentals data not available)",
+    news_block: str = "  (no news data available)",
 ) -> str:
     """Build the Analyst's user-message payload.
 
-    `insider_block` and `fundamentals_block` are pre-formatted text from
-    src.data.borsdata_insiders and src.data.fundamentals respectively.
+    All *_block params are pre-formatted text from the dedicated data modules.
     """
     held_block = (
         f"CURRENTLY HELD: yes, cost basis = {held_avg_cost:.2f} SEK/share"
@@ -116,6 +116,7 @@ def analyst_user_message(
         f"PRICE METRICS:\n  {metrics.one_liner()}\n\n"
         f"FUNDAMENTALS (Börsdata, rolling 12-month):\n{fundamentals_block}\n\n"
         f"INSIDER ACTIVITY (last 90d, equity-program transactions excluded):\n{insider_block}\n\n"
+        f"RECENT NEWS (last 30 days, materiality 3+ — M1=boilerplate, M5=critical):\n{news_block}\n\n"
         f"DOSSIER (prior notes):\n(no dossier on file yet — this is the first time we look at this name)\n"
     )
 
@@ -201,6 +202,7 @@ def event_monitor_user_message(
     journal: str,
     insiders_today: list[InsiderTransaction],
     large_movers: list[tuple[str, float]],  # (ticker, daily_change_pct)
+    news_block: str = "  (no notable news in the last 24 hours)",
 ) -> str:
     if portfolio.holdings:
         hold_lines = "\n".join(
@@ -230,5 +232,6 @@ def event_monitor_user_message(
         f"HOLDINGS:\n{hold_lines}\n\n"
         f"JOURNAL (current thesis state):\n{journal}\n\n"
         f"INSIDER ACTIVITY TODAY on held/watchlist names:\n{insider_lines}\n\n"
-        f"LARGE PRICE MOVES on held/watchlist names today:\n{mover_lines}\n"
+        f"LARGE PRICE MOVES on held/watchlist names today:\n{mover_lines}\n\n"
+        f"NEWS in the last 24h on held/watchlist names (materiality 3+):\n{news_block}\n"
     )

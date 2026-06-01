@@ -30,12 +30,17 @@ from src.claude_client import call_role
 from src.config import REPORTS_DIR, THESES_FILE
 from src.contexts import event_monitor_user_message
 from src.data.insiders import fetch_recent
+from src.data.news import (
+    fetch_and_classify_many,
+    format_for_analyst as format_news_compact,
+    recent_high_materiality,
+)
 from src.data.prices import get_history, get_latest_closes
 from src.issuer_match import index_by_ticker
 from src.json_parse import JsonExtractError, extract_json
 from src.portfolio import Portfolio
 from src.reporting import send_email
-from src.universe import load_universe
+from src.universe import find, load_universe
 
 log = logging.getLogger(__name__)
 
@@ -230,9 +235,27 @@ def _build_daily_report(
     monitored: list[str],
     insiders_today: list,
     movers: list[tuple[str, float]],
+    todays_material_news: list,
     token_usage: dict,
 ) -> str:
     pulse = _pulse_section(portfolio, prices, changes, held_tickers, watchlist_tickers, bm_change_pct)
+
+    # News section (always shown; says "no news" on quiet days)
+    if todays_material_news:
+        news_rows = []
+        for ticker, it in todays_material_news[:10]:
+            sent_glyph = {"positive": "🟢", "neutral": "⚪", "negative": "🔴"}.get(
+                it.sentiment or "neutral", "⚪"
+            )
+            news_rows.append(
+                f"- {sent_glyph} **{ticker}** [{(it.source or '?')[:18]}] "
+                f"M{it.materiality}: {it.summary or it.title}"
+            )
+        if len(todays_material_news) > 10:
+            news_rows.append(f"- _… and {len(todays_material_news) - 10} more material items today_")
+        news_section = "\n## News today (≥M3)\n\n" + "\n".join(news_rows) + "\n"
+    else:
+        news_section = "\n## News today\n\n_(no material news on monitored names in the last 24h)_\n"
 
     # Flags / AI section (only when EM was invoked)
     if em_json is not None:
@@ -291,7 +314,7 @@ def _build_daily_report(
         em_section = "\n## Material events\n\n_No material events today — Event Monitor not invoked (saves tokens)._\n"
 
     return f"""# Daily Pulse — {today.isoformat()}
-{pulse}{em_section}
+{pulse}{news_section}{em_section}
 ---
 *Monitored: {len(monitored)} tickers ({len(held_tickers)} held + {len(watchlist_tickers)} watchlist).*
 """
@@ -362,10 +385,23 @@ def run(send_email_flag: bool, silent: bool) -> int:
         insiders_today = []
 
     movers = compute_daily_movers(changes)
-    has_material = bool(insiders_today) or bool(movers)
+
+    # News: fetch + classify for all monitored tickers
+    monitored_entries = [e for t in monitored for e in [find(t, universe)] if e is not None]
+    news_by_ticker = {}
+    if monitored_entries:
+        try:
+            news_by_ticker = fetch_and_classify_many(monitored_entries, max_new_per_ticker=4)
+        except Exception as e:
+            log.warning("News fetch failed (non-fatal): %s", e)
+
+    todays_material_news = recent_high_materiality(news_by_ticker, since_days=1, min_materiality=3)
+    log.info("Today's material news items (≥M3, last 24h): %d", len(todays_material_news))
+
+    has_material = bool(insiders_today) or bool(movers) or bool(todays_material_news)
     log.info(
-        "Daily inputs: %d insider txs, %d large movers. Material=%s",
-        len(insiders_today), len(movers), has_material,
+        "Daily inputs: %d insider txs, %d large movers, %d material news. Material=%s",
+        len(insiders_today), len(movers), len(todays_material_news), has_material,
     )
 
     # Invoke Event Monitor only on material days. The daily pulse below
@@ -374,9 +410,22 @@ def run(send_email_flag: bool, silent: bool) -> int:
     em_text: str | None = None
     usage = {"input": 0, "output": 0, "cache_read": 0, "cache_create": 0}
     if has_material:
+        # Build a news block for the Event Monitor (last 24h, ≥M3)
+        if todays_material_news:
+            news_block_lines = [
+                f"  [{ticker}] {it.published_at.date().isoformat()} "
+                f"({(it.source or '?')[:18]}) M{it.materiality}{('+' if it.sentiment=='positive' else '-' if it.sentiment=='negative' else '·')} "
+                f"{it.summary or it.title}"
+                for ticker, it in todays_material_news[:12]
+            ]
+            em_news_block = "\n".join(news_block_lines)
+        else:
+            em_news_block = "  (no notable news in the last 24 hours)"
+
         msg = event_monitor_user_message(
             today=today, portfolio=portfolio, prices=prices, journal=journal,
             insiders_today=insiders_today, large_movers=movers,
+            news_block=em_news_block,
         )
         resp = call_role("event_monitor", msg)
         usage = {
@@ -399,6 +448,7 @@ def run(send_email_flag: bool, silent: bool) -> int:
         bm_change_pct=bm_change_pct,
         em_json=em_json, em_full_text=em_text,
         monitored=monitored, insiders_today=insiders_today, movers=movers,
+        todays_material_news=todays_material_news,
         token_usage=usage,
     )
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)

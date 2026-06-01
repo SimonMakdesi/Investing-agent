@@ -1,0 +1,49 @@
+# Override the default Google News search query for tickers where the
+# company name produces too many false positives or misses the right entity.
+#
+# Each entry: ticker -> Google News search query (will be URL-encoded).
+# Use double-quotes inside to anchor matches. OR-joins broaden the search.
+#
+# If a ticker isn't listed here, the default query is the entry's `name`
+# in double quotes.
+
+HM-B.ST: '"H&M" OR "Hennes & Mauritz"'
+ERIC-B.ST: '"Ericsson" -"Ericsson Globe"'
+INVE-B.ST: '"Investor AB" OR "Investor B"'
+INDU-C.ST: '"Industrivärden"'
+LATO-B.ST: '"Investment AB Latour" OR "Latour" -"Henri Latour"'
+NCC-B.ST: '"NCC AB" OR "NCC Bygg"'
+HUFV-A.ST: '"Hufvudstaden"'
+NIBE-B.ST: '"NIBE Industrier"'
+SBB-B.ST: '"Samhällsbyggnadsbolaget" OR "SBB i Norden"'
+BALD-B.ST: '"Fastighets AB Balder" OR "Balder" -"Mighty Ducks"'
+KINV-B.ST: '"Kinnevik"'
+ESSITY-B.ST: '"Essity"'
+SAAB-B.ST: '"Saab AB" -"Saab bil" -"Saab automobile"'
+ATCO-A.ST: '"Atlas Copco"'
+ATCO-B.ST: '"Atlas Copco"'
+EPI-A.ST: '"Epiroc"'
+EPI-B.ST: '"Epiroc"'
+SSAB-A.ST: '"SSAB"'
+SSAB-B.ST: '"SSAB"'
+SHB-A.ST: '"Handelsbanken" -"Handelsbankens Hus"'
+SEB-A.ST: '"SEB" OR "Skandinaviska Enskilda Banken"'
+SWED-A.ST: '"Swedbank"'
+NDA-SE.ST: '"Nordea"'
+EVO.ST: '"Evolution AB" OR "Evolution Gaming"'
+EQT.ST: '"EQT AB" OR "EQT Partners"'
+BOL.ST: '"Boliden"'
+SAND.ST: '"Sandvik"'
+ALFA.ST: '"Alfa Laval"'
+HEXA-B.ST: '"Hexagon AB"'
+SKF-B.ST: '"SKF AB"'
+ELUX-B.ST: '"Electrolux"'
+TEL2-B.ST: '"Tele2"'
+TELIA.ST: '"Telia Company" OR "Telia"'
+SCA-B.ST: '"Svenska Cellulosa" OR "SCA AB"'
+GETI-B.ST: '"Getinge"'
+SECU-B.ST: '"Securitas AB"'
+KAMBI.ST: '"Kambi Group"'
+BILL.ST: '"Bilia"'
+SOBI.ST: '"Swedish Orphan Biovitrum" OR "Sobi"'
+VOLV-B.ST: '"Volvo AB" OR "AB Volvo" -"Volvo Cars"'

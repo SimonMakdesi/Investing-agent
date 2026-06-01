@@ -171,6 +171,43 @@ def call_role(
     return response
 
 
+def call_lightweight(
+    *,
+    system: str,
+    user: str,
+    model: str = MODEL_SONNET,
+    max_tokens: int = 600,
+    label: str = "utility",
+) -> tuple[str, dict]:
+    """A simple Claude call for utility tasks (news classification, etc).
+
+    Skips the constitution + role-prompt loading and the per-call archive —
+    these would balloon storage and cost for hundreds of tiny classification
+    calls. Use only for stateless, single-shot helpers.
+
+    Returns (text, usage_dict).
+    """
+    started = time.monotonic()
+    msg = _client_singleton().messages.create(
+        model=model,
+        max_tokens=max_tokens,
+        system=system,
+        messages=[{"role": "user", "content": user}],
+    )
+    text = "".join(block.text for block in msg.content if hasattr(block, "text"))
+    usage = msg.usage
+    elapsed = time.monotonic() - started
+    log.debug(
+        "Lightweight Claude call (%s, %s): in=%d out=%d %.1fs",
+        label, model, usage.input_tokens, usage.output_tokens, elapsed,
+    )
+    return text, {
+        "input_tokens": usage.input_tokens,
+        "output_tokens": usage.output_tokens,
+        "elapsed_seconds": elapsed,
+    }
+
+
 def _archive_call(
     *,
     role: str,
