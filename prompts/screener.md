@@ -13,7 +13,7 @@ You are not making trade decisions. You are not writing theses. You are deciding
 - Today's date
 - Current portfolio holdings (tickers + sleeves — for context only)
 - The watchlist excerpt from the journal (names already on the agent's radar)
-- The universe metrics: one line per ticker, ~95 lines
+- The universe metrics: one line per ticker, ~300 lines
 - A summary of significant insider buys in the last 7 days
 
 ## What makes a candidate worth a deeper look

@@ -31,6 +31,7 @@ from src.contexts import (
 )
 from src.data.borsdata import BorsdataClient, BorsdataError
 from src.data.borsdata_insiders import fetch_summaries_for_universe, format_summary_for_analyst
+from src.data.universe_refresh import merged_universe
 from src.data.fundamentals import compute as compute_fundamentals
 from src.data.fundamentals import format_for_analyst as format_fundamentals
 from src.data.insiders import fetch_recent
@@ -71,7 +72,14 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
     portfolio = Portfolio.load()
     portfolio_before = copy.deepcopy(portfolio)
 
-    universe = load_universe()
+    # Try Börsdata-refreshed universe first; fall back to YAML on failure.
+    # Build the client early since universe refresh wants it.
+    borsdata: BorsdataClient | None = None
+    try:
+        borsdata = BorsdataClient()
+    except BorsdataError as e:
+        log.warning("Börsdata client init failed: %s", e)
+    universe = merged_universe(borsdata)
     log.info(
         "Loaded portfolio (cash=%s SEK, holdings=%d) and universe (%d names)",
         f"{portfolio.cash_sek:,.0f}", len(portfolio.holdings), len(universe),
@@ -90,21 +98,20 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
     log.info("Fetching insider transactions (FI, last 7 days for Screener wide-angle view)")
     insiders_7d = fetch_recent(days_back=7)
 
-    # Per-ticker insider data now sourced from Börsdata (clean, equityProgram filtered).
-    # FI continues to power the Screener's wide-angle "what's happening on the exchange"
-    # view because the issuer-level names are useful to humans browsing the report.
-    borsdata: BorsdataClient | None = None
+    # Per-ticker insider data sourced from Börsdata (clean, equityProgram filtered).
+    # FI continues to power the Screener's wide-angle view because issuer names
+    # are useful to humans browsing the report.
     insider_summaries: dict = {}
-    try:
-        borsdata = BorsdataClient()
-        universe_yahoo = [e.ticker for e in universe]
-        insider_summaries = fetch_summaries_for_universe(borsdata, universe_yahoo, window_days=90)
-        log.info(
-            "Börsdata insider summaries: %d/%d tickers have conviction-grade activity in last 90d",
-            len(insider_summaries), len(universe),
-        )
-    except BorsdataError as e:
-        log.warning("Börsdata unavailable: %s — falling back to FI-only insider data", e)
+    if borsdata is not None:
+        try:
+            universe_yahoo = [e.ticker for e in universe]
+            insider_summaries = fetch_summaries_for_universe(borsdata, universe_yahoo, window_days=90)
+            log.info(
+                "Börsdata insider summaries: %d/%d tickers have conviction-grade activity in last 90d",
+                len(insider_summaries), len(universe),
+            )
+        except BorsdataError as e:
+            log.warning("Börsdata insider fetch failed: %s — falling back to FI-only insider data", e)
 
     # Legacy FI-derived per-ticker index, used as fallback when Börsdata is unavailable
     # AND to drive the metric line on the universe view.

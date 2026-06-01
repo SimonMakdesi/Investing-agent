@@ -30,17 +30,19 @@ from src.claude_client import call_role
 from src.config import REPORTS_DIR, THESES_FILE
 from src.contexts import event_monitor_user_message
 from src.data.insiders import fetch_recent
+from src.data.borsdata import BorsdataClient, BorsdataError
 from src.data.news import (
     fetch_and_classify_many,
     format_for_analyst as format_news_compact,
     recent_high_materiality,
 )
 from src.data.prices import get_history, get_latest_closes
+from src.data.universe_refresh import merged_universe
 from src.issuer_match import index_by_ticker
 from src.json_parse import JsonExtractError, extract_json
 from src.portfolio import Portfolio
 from src.reporting import send_email
-from src.universe import find, load_universe
+from src.universe import find
 
 log = logging.getLogger(__name__)
 
@@ -351,7 +353,12 @@ def run(send_email_flag: bool, silent: bool) -> int:
     log.info("=== Daily cycle start — %s ===", today.isoformat())
 
     portfolio = Portfolio.load()
-    universe = load_universe()
+    bd_client: BorsdataClient | None = None
+    try:
+        bd_client = BorsdataClient()
+    except BorsdataError as e:
+        log.warning("Börsdata client init failed: %s", e)
+    universe = merged_universe(bd_client)
     journal = THESES_FILE.read_text(encoding="utf-8") if THESES_FILE.exists() else ""
 
     watchlist_tickers = parse_watchlist(journal)
