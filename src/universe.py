@@ -25,7 +25,9 @@ UNIVERSE_FILE = STATE_DIR / "universe.yaml"
 class Tier(str, Enum):
     LARGE_CAP = "large_cap"
     MID_CAP = "mid_cap"
-    CURATED_SMALL = "curated_small_first_north"
+    SMALL_CAP = "small_cap"
+    FIRST_NORTH = "first_north"
+    CURATED_SMALL = "curated_small_first_north"  # legacy hand-list, augments auto-refresh
 
 
 @dataclass(frozen=True)

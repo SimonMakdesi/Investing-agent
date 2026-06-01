@@ -24,6 +24,15 @@ log = logging.getLogger(__name__)
 # Börsdata market IDs (countryId=1 = Sweden)
 MARKET_LARGE_CAP = 1
 MARKET_MID_CAP = 2
+MARKET_SMALL_CAP = 3
+MARKET_FIRST_NORTH = 4
+
+_MARKET_TO_TIER = {
+    MARKET_LARGE_CAP: Tier.LARGE_CAP,
+    MARKET_MID_CAP: Tier.MID_CAP,
+    MARKET_SMALL_CAP: Tier.SMALL_CAP,
+    MARKET_FIRST_NORTH: Tier.FIRST_NORTH,
+}
 
 # Börsdata sector ID -> our standard English sector name.
 SECTOR_MAP: dict[int, str] = {
@@ -49,19 +58,27 @@ def _classify_sector(sector_id: int, branch_id: int) -> str:
     return SECTOR_MAP.get(sector_id, "Unknown")
 
 
-def refresh_large_mid_cap(client: BorsdataClient) -> list[UniverseEntry]:
-    """Fetch all Swedish Large + Mid Cap instruments from Börsdata and return
-    them as UniverseEntry objects ready to plug into the pipeline."""
+def refresh_from_markets(
+    client: BorsdataClient,
+    market_ids: tuple[int, ...] = (
+        MARKET_LARGE_CAP, MARKET_MID_CAP, MARKET_SMALL_CAP, MARKET_FIRST_NORTH,
+    ),
+) -> list[UniverseEntry]:
+    """Fetch all Swedish instruments from the given Börsdata markets and return
+    them as UniverseEntry objects with appropriate Tier mapping."""
     instruments = client.instruments
     out: list[UniverseEntry] = []
+    per_tier: dict[Tier, int] = {}
     for inst in instruments:
         if inst.country_id != 1:
             continue
-        if inst.market_id not in (MARKET_LARGE_CAP, MARKET_MID_CAP):
+        if inst.market_id not in market_ids:
             continue
         if not inst.yahoo_ticker:
             continue
-        tier = Tier.LARGE_CAP if inst.market_id == MARKET_LARGE_CAP else Tier.MID_CAP
+        tier = _MARKET_TO_TIER.get(inst.market_id)
+        if tier is None:
+            continue
         sector = _classify_sector(inst.sector_id, inst.branch_id)
         out.append(UniverseEntry(
             ticker=inst.yahoo_ticker,
@@ -69,11 +86,18 @@ def refresh_large_mid_cap(client: BorsdataClient) -> list[UniverseEntry]:
             sector=sector,
             tier=tier,
         ))
+        per_tier[tier] = per_tier.get(tier, 0) + 1
     log.info(
-        "Börsdata auto-refresh: %d Large + Mid Cap names",
+        "Börsdata auto-refresh: %d names total (%s)",
         len(out),
+        ", ".join(f"{t.value}={n}" for t, n in per_tier.items()),
     )
     return out
+
+
+# Backwards-compat alias for the previous Large+Mid-only fetcher.
+def refresh_large_mid_cap(client: BorsdataClient) -> list[UniverseEntry]:
+    return refresh_from_markets(client, (MARKET_LARGE_CAP, MARKET_MID_CAP))
 
 
 def merged_universe(client: BorsdataClient | None = None) -> list[UniverseEntry]:
@@ -90,15 +114,15 @@ def merged_universe(client: BorsdataClient | None = None) -> list[UniverseEntry]
         return yaml_universe
 
     try:
-        auto_lm = refresh_large_mid_cap(client)
+        auto_full = refresh_from_markets(client)
     except BorsdataError as e:
         log.warning("Universe auto-refresh failed (%s) — falling back to YAML", e)
         return yaml_universe
 
     curated_small = [e for e in yaml_universe if e.tier == Tier.CURATED_SMALL]
-    merged = auto_lm + curated_small
+    merged = auto_full + curated_small
 
-    # Dedupe by ticker (in case a name appears in both); auto-refreshed wins
+    # Dedupe by ticker (auto-refreshed wins on conflict)
     seen: set[str] = set()
     deduped: list[UniverseEntry] = []
     for e in merged:
@@ -108,7 +132,6 @@ def merged_universe(client: BorsdataClient | None = None) -> list[UniverseEntry]
         deduped.append(e)
 
     log.info(
-        "Universe: %d Large/Mid Cap (Börsdata) + %d curated Small (YAML) = %d total names",
-        len(auto_lm), len(curated_small), len(deduped),
+        "Universe (auto + curated): %d names total", len(deduped),
     )
     return deduped
