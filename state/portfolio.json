@@ -1,5 +1,5 @@
 {
-  "cash_sek": 73823.05003356934,
+  "cash_sek": 70842.25002479553,
   "holdings": {
     "HM-B.ST": {
       "ticker": "HM-B.ST",
@@ -39,6 +39,14 @@
       "avg_cost": 26.75,
       "sleeve": "core",
       "opened_at": "2026-06-07T20:17:16.195603+02:00",
+      "sector": "Real Estate"
+    },
+    "CORE-B.ST": {
+      "ticker": "CORE-B.ST",
+      "shares": 1150.0,
+      "avg_cost": 2.5920000076293945,
+      "sleeve": "aggressive",
+      "opened_at": "2026-06-14T20:24:14.069237+02:00",
       "sector": "Real Estate"
     }
   },
