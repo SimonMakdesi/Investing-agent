@@ -21,6 +21,7 @@ from pathlib import Path
 import yfinance as yf
 
 from src.config import ARCHIVE_DIR, REPO_ROOT, STATE_DIR, TRANSACTIONS_LOG
+from src.data.benchmark import blended_index_hist, regional_weights
 from src.data.prices import get_history
 from src.portfolio import Portfolio
 
@@ -138,21 +139,11 @@ def _build_value_series(portfolio: Portfolio, transactions: list[dict]) -> list[
             continue
         price_hist[t] = {ts.date(): float(price) for ts, price in h["Close"].dropna().items()}
 
-    # Benchmark history (^OMX)
-    bm_hist_df = yf.download(BENCHMARK_TICKER, period="2y", progress=False, auto_adjust=False)
-    bm_hist: dict[date, float] = {}
-    if bm_hist_df is not None and not bm_hist_df.empty:
-        # yfinance returns a multi-index when downloading; flatten
-        if hasattr(bm_hist_df.columns, "get_level_values"):
-            try:
-                bm_close = bm_hist_df["Close"]
-                if hasattr(bm_close, "columns"):
-                    bm_close = bm_close.iloc[:, 0]
-            except KeyError:
-                bm_close = bm_hist_df.iloc[:, 0]
-        else:
-            bm_close = bm_hist_df["Close"]
-        bm_hist = {ts.date(): float(p) for ts, p in bm_close.dropna().items()}
+    # Benchmark history — blended OMXS30 + S&P 500, weighted by current regional
+    # equity split (S&P measured in SEK). Returned as a normalised index so the
+    # `bm_now / bm_start` math below is unchanged.
+    se_w, us_w = regional_weights(portfolio, {})
+    bm_hist: dict[date, float] = blended_index_hist(se_w, us_w, period="2y")
 
     def closest_price(ticker: str, target: date) -> float | None:
         hist = price_hist.get(ticker)
@@ -776,7 +767,7 @@ def _render_html(
         <div class="loot-value {pnl_class}">{current_value:,.0f}<span class="loot-currency">SEK</span></div>
         <div class="script mt-3 text-sm" style="color: var(--ink-fade);">
           <span class="num {pnl_class}">{pnl_sigil} {pnl_pct:+.2f}%</span> against thine own coin ·
-          <span class="num {bm_class}">{bm_pnl_pct:+.2f}%</span> the OMXS30 ·
+          <span class="num {bm_class}">{bm_pnl_pct:+.2f}%</span> the blended index ·
           <span class="num {excess_class}">{excess_pct:+.2f}%</span> alpha
         </div>
       </div>
@@ -928,7 +919,7 @@ new Chart(document.getElementById('valueChart'), {{
         borderWidth: 2.5,
       }},
       {{
-        label: 'OMXS30 (the realm)',
+        label: 'OMXS30 + S&P 500 blend (the realm)',
         data: series.map(p => p.benchmark),
         borderColor: 'rgba(42,31,18,0.55)',
         borderDash: [4, 5],

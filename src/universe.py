@@ -28,6 +28,12 @@ class Tier(str, Enum):
     SMALL_CAP = "small_cap"
     FIRST_NORTH = "first_north"
     CURATED_SMALL = "curated_small_first_north"  # legacy hand-list, augments auto-refresh
+    US_LARGE_CAP = "us_large_cap"  # curated US large-caps (USD); see CLAUDE.md §2
+
+
+# Tiers maintained by hand in universe.yaml (not auto-refreshed from Börsdata's
+# Nordic markets). These "benefit from human taste" and carry their own currency.
+CURATED_TIERS = (Tier.CURATED_SMALL, Tier.US_LARGE_CAP)
 
 
 @dataclass(frozen=True)
@@ -37,6 +43,13 @@ class UniverseEntry:
     sector: str
     tier: Tier
     rationale: str | None = None  # only set for curated entries
+    currency: str = "SEK"  # native trading currency (USD for US names)
+
+
+def _default_currency(tier: Tier, explicit: str | None) -> str:
+    if explicit:
+        return explicit.upper()
+    return "USD" if tier == Tier.US_LARGE_CAP else "SEK"
 
 
 def load_universe(path: Path = UNIVERSE_FILE) -> list[UniverseEntry]:
@@ -52,6 +65,7 @@ def load_universe(path: Path = UNIVERSE_FILE) -> list[UniverseEntry]:
                     sector=row.get("sector", "Unknown"),
                     tier=tier,
                     rationale=row.get("rationale"),
+                    currency=_default_currency(tier, row.get("currency")),
                 )
             )
     return entries

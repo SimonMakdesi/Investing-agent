@@ -36,7 +36,7 @@ from src.data.fundamentals import compute as compute_fundamentals
 from src.data.fundamentals import format_for_analyst as format_fundamentals
 from src.data.insiders import fetch_recent
 from src.data.news import fetch_and_classify, format_for_analyst as format_news_for_analyst
-from src.data.prices import get_latest_closes
+from src.data.prices import get_latest_closes_sek
 from src.issuer_match import index_by_ticker
 from src.json_parse import JsonExtractError, extract_json
 from src.metrics import compute
@@ -91,8 +91,7 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
     universe_tickers = [e.ticker for e in universe]
     held_tickers = list(portfolio.holdings.keys())
     all_tickers = sorted(set(universe_tickers + held_tickers))
-    snapshots = get_latest_closes(all_tickers)
-    prices = {t: s.close for t, s in snapshots.items()}
+    prices = get_latest_closes_sek(all_tickers)  # SEK-normalised (US names converted)
     log.info("Got prices for %d/%d tickers", len(prices), len(all_tickers))
 
     log.info("Fetching insider transactions (FI, last 7 days for Screener wide-angle view)")
@@ -235,6 +234,7 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
 
     # --- Risk validation + (optional) execution ---
     sector_lookup = {e.ticker: e.sector for e in universe}
+    currency_lookup = {e.ticker: e.currency for e in universe}
     executed_trades: list[dict] = []
     risk_violations: list[dict] = []
     for trade in proposed_trades:
@@ -269,6 +269,7 @@ def run(dry_run: bool, send_email_flag: bool) -> int:
                 portfolio.buy(
                     ticker=proposal.ticker, shares=proposal.shares, price=exec_price,
                     sleeve=proposal.sleeve, sector=proposal.sector, rationale=proposal.rationale,
+                    currency=currency_lookup.get(proposal.ticker, "SEK"),
                 )
             else:  # sell or trim
                 portfolio.sell(

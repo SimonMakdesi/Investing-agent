@@ -24,6 +24,7 @@ class Fundamentals:
     latest_revenue_year: int
     latest_revenue_period: int
     latest_report_date: str | None
+    currency: str  # report currency (SEK for Nordic, USD for US, …)
 
     revenue_growth_yoy_pct: float | None        # vs R12 four quarters back
     revenue_growth_3y_cagr_pct: float | None    # 3-year CAGR from annual reports
@@ -55,9 +56,13 @@ class Fundamentals:
 def compute(client: BorsdataClient, ins_id: int, current_price: float | None = None) -> Fundamentals | None:
     """Build the Fundamentals view for one instrument.
 
-    `current_price` (SEK/share) is required for P/E, dividend yield, FCF yield.
-    If omitted, those fields are None.
+    `current_price` is the SEK-normalised price/share (the pipeline's accounting
+    base). Reports are in the company's native currency, so for valuation ratios
+    we convert the price back to native here — keeping P/E, dividend yield, and
+    FCF yield currency-consistent for US names as well as Nordic. If omitted,
+    those fields are None.
     """
+    from src.data import fx  # local import keeps module load cheap / cycle-free
     try:
         r12 = client.get_r12_reports(ins_id, max_count=8)
         annual = client.get_year_reports(ins_id, max_count=4)
@@ -89,17 +94,24 @@ def compute(client: BorsdataClient, ins_id: int, current_price: float | None = N
     roe = _pct(latest.profit_to_equity_holders, latest.total_equity)
     net_debt_to_equity = _pct(latest.net_debt, latest.total_equity)
 
+    currency = (latest.currency or "SEK").upper()
+
     pe = None
     div_yield = None
     fcf_yield = None
     if current_price and current_price > 0:
+        # Convert the SEK price back to the report's native currency so ratios
+        # line up with EPS / dividend / FCF (which are native). For Nordic names
+        # the rate is 1.0 and this is a no-op.
+        fx_rate = fx.rate(currency) or 1.0
+        price_native = current_price / fx_rate
         if latest.earnings_per_share > 0:
-            pe = current_price / latest.earnings_per_share
+            pe = price_native / latest.earnings_per_share
         if latest.dividend > 0:
-            div_yield = latest.dividend / current_price * 100
-        market_cap_msek = current_price * latest.number_of_shares
-        if market_cap_msek > 0 and latest.free_cash_flow:
-            fcf_yield = latest.free_cash_flow / market_cap_msek * 100
+            div_yield = latest.dividend / price_native * 100
+        market_cap_native = price_native * latest.number_of_shares
+        if market_cap_native > 0 and latest.free_cash_flow:
+            fcf_yield = latest.free_cash_flow / market_cap_native * 100
 
     next_date, days_until = _estimate_next_report(r12)
 
@@ -108,6 +120,7 @@ def compute(client: BorsdataClient, ins_id: int, current_price: float | None = N
         latest_revenue_year=latest.year,
         latest_revenue_period=latest.period,
         latest_report_date=latest.report_date.isoformat() if latest.report_date else None,
+        currency=currency,
         revenue_growth_yoy_pct=revenue_growth_yoy,
         revenue_growth_3y_cagr_pct=revenue_growth_3y_cagr,
         gross_margin_pct=gross_margin,
@@ -186,10 +199,12 @@ def format_for_analyst(f: Fundamentals) -> str:
     def _v(x: float | None, suffix: str = "", fmt: str = "{:+.1f}") -> str:
         return f"{fmt.format(x)}{suffix}" if x is not None else "n/a"
 
+    unit = f"M{f.currency}"  # e.g. MSEK, MUSD — amounts are in native-currency millions
+
     lines = [
         f"  Latest R12 (year {f.latest_revenue_year} Q{f.latest_revenue_period}, "
-        f"reported {f.latest_report_date or '?'})",
-        f"  Revenue:           {f.latest_revenue_msek:>12,.0f} MSEK   "
+        f"reported {f.latest_report_date or '?'}, currency {f.currency})",
+        f"  Revenue:           {f.latest_revenue_msek:>12,.0f} {unit}   "
         f"YoY: {_v(f.revenue_growth_yoy_pct, '%')}   "
         f"3y CAGR: {_v(f.revenue_growth_3y_cagr_pct, '%')}",
         f"  Margins:           gross {_v(f.gross_margin_pct, '%', '{:.1f}')}   "
@@ -197,9 +212,9 @@ def format_for_analyst(f: Fundamentals) -> str:
         f"net {_v(f.net_margin_pct, '%', '{:.1f}')}",
         f"  Profitability:     ROE {_v(f.roe_pct, '%', '{:.1f}')}   "
         f"EPS {f.earnings_per_share:.2f}   "
-        f"FCF {f.free_cash_flow_msek:,.0f} MSEK   "
+        f"FCF {f.free_cash_flow_msek:,.0f} {unit}   "
         f"FCF yield {_v(f.fcf_yield_pct, '%', '{:.1f}')}",
-        f"  Balance sheet:     net debt {f.net_debt_msek:,.0f} MSEK"
+        f"  Balance sheet:     net debt {f.net_debt_msek:,.0f} {unit}"
         + (" (NET CASH)" if f.net_debt_msek < 0 else "")
         + f"   net debt / equity {_v(f.net_debt_to_equity_pct, '%', '{:.1f}')}",
         f"  Valuation:         P/E {_v(f.pe_ttm, '', '{:.1f}')}   "

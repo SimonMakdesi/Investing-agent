@@ -30,10 +30,13 @@ class Sleeve(str, Enum):
 class Holding(BaseModel):
     ticker: str
     shares: float
-    avg_cost: float  # SEK per share, cost basis
+    avg_cost: float  # SEK per share, cost basis (the accounting base is always SEK)
     sleeve: Sleeve
     opened_at: datetime  # first buy that established the position
     sector: str | None = None  # optional, filled in when known
+    # Native trading currency, for display/reporting only. Accounting stays in
+    # SEK: avg_cost and all valuation are SEK-normalised at the data boundary.
+    currency: str = "SEK"
 
 
 class Portfolio(BaseModel):
@@ -72,6 +75,7 @@ class Portfolio(BaseModel):
         sleeve: Sleeve,
         sector: str | None = None,
         rationale: str = "",
+        currency: str = "SEK",
     ) -> None:
         if shares <= 0 or price <= 0:
             raise ValueError("shares and price must be positive")
@@ -103,6 +107,7 @@ class Portfolio(BaseModel):
                 sleeve=sleeve,
                 opened_at=now,
                 sector=sector,
+                currency=currency,
             )
 
         self.cash_sek -= cost

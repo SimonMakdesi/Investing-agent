@@ -40,6 +40,7 @@ ROLE_MODEL: dict[str, str] = {
     "screener": MODEL_SONNET,
     "analyst": MODEL_OPUS,
     "portfolio_manager": MODEL_OPUS,
+    "daily_pm": MODEL_OPUS,  # event-driven daily trade decisions — high-stakes, so Opus
     "journal_keeper": MODEL_SONNET,
     "event_monitor": MODEL_SONNET,
 }
@@ -49,6 +50,7 @@ ROLE_MAX_TOKENS: dict[str, int] = {
     "screener": 2_000,
     "analyst": 4_000,
     "portfolio_manager": 4_000,
+    "daily_pm": 4_000,
     "journal_keeper": 3_000,
     "event_monitor": 1_500,
 }

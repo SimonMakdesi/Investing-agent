@@ -71,3 +71,19 @@ def get_latest_closes(tickers: list[str]) -> dict[str, PriceSnapshot]:
         if snap is not None:
             out[t] = snap
     return out
+
+
+def get_latest_closes_sek(tickers: list[str]) -> dict[str, float]:
+    """Latest close per ticker, normalised to SEK (the portfolio accounting base).
+
+    US/foreign names arrive priced in their native currency (yfinance fills
+    `PriceSnapshot.currency`); we convert here so every downstream consumer —
+    risk caps, valuation, execution — keeps reasoning in a single currency.
+    Returns only tickers that succeeded.
+    """
+    from src.data.fx import to_sek  # local import avoids a cycle at module load
+
+    out: dict[str, float] = {}
+    for t, snap in get_latest_closes(tickers).items():
+        out[t] = to_sek(snap.close, snap.currency)
+    return out

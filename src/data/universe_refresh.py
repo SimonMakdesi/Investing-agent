@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 
 from src.data.borsdata import BorsdataClient, BorsdataError
-from src.universe import Tier, UniverseEntry, load_universe
+from src.universe import CURATED_TIERS, Tier, UniverseEntry, load_universe
 
 log = logging.getLogger(__name__)
 
@@ -119,8 +119,11 @@ def merged_universe(client: BorsdataClient | None = None) -> list[UniverseEntry]
         log.warning("Universe auto-refresh failed (%s) — falling back to YAML", e)
         return yaml_universe
 
-    curated_small = [e for e in yaml_universe if e.tier == Tier.CURATED_SMALL]
-    merged = auto_full + curated_small
+    # Hand-maintained tiers (curated Nordic small/first-north + curated US large-caps)
+    # are added from YAML; the Nordic Large/Mid/Small/First-North tiers come from
+    # the Börsdata auto-refresh above.
+    curated = [e for e in yaml_universe if e.tier in CURATED_TIERS]
+    merged = auto_full + curated
 
     # Dedupe by ticker (auto-refreshed wins on conflict)
     seen: set[str] = set()

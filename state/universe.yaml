@@ -117,3 +117,36 @@ curated_small_first_north:
   - {ticker: CDON.ST,     name: "CDON Group",              sector: "E-commerce",        rationale: "Nordic marketplace turnaround under new management. Speculative."}
   - {ticker: CIBUS.ST,    name: "Cibus Nordic Real Estate",sector: "Real Estate",       rationale: "Daily-goods anchored grocery property REIT, monthly dividend, defensive."}
   - {ticker: NCAB.ST,     name: "NCAB Group",              sector: "Industrials",       rationale: "PCB design/distribution, asset-light, global growth, capital-efficient."}
+
+# US large-caps (priced in USD; valued/executed in SEK at the live FX rate).
+# Curated — Börsdata's global list has no size field to auto-filter "large cap",
+# so this is a hand-picked liquid set across sectors. Note: no US insider signal
+# yet (SEC EDGAR Form 4 is a planned follow-up), so these trade on fundamentals
+# + news only. Yahoo tickers have no exchange suffix.
+us_large_cap:
+  - {ticker: AAPL,  name: "Apple",                  sector: "Technology",             currency: USD}
+  - {ticker: MSFT,  name: "Microsoft",              sector: "Technology",             currency: USD}
+  - {ticker: NVDA,  name: "NVIDIA",                 sector: "Technology",             currency: USD}
+  - {ticker: GOOGL, name: "Alphabet A",             sector: "Communication",          currency: USD}
+  - {ticker: AMZN,  name: "Amazon",                 sector: "Consumer Discretionary", currency: USD}
+  - {ticker: META,  name: "Meta Platforms",         sector: "Communication",          currency: USD}
+  # Berkshire omitted: Yahoo uses BRK-B (prices) but Börsdata uses BRK.B
+  # (fundamentals) — the two can't be reconciled with one ticker string, so it
+  # would trade without fundamentals. Re-add if a yahoo->Börsdata alias is built.
+  - {ticker: JPM,   name: "JPMorgan Chase",         sector: "Financials",             currency: USD}
+  - {ticker: V,     name: "Visa",                   sector: "Financials",             currency: USD}
+  - {ticker: MA,    name: "Mastercard",             sector: "Financials",             currency: USD}
+  - {ticker: UNH,   name: "UnitedHealth",           sector: "Healthcare",             currency: USD}
+  - {ticker: JNJ,   name: "Johnson & Johnson",      sector: "Healthcare",             currency: USD}
+  - {ticker: LLY,   name: "Eli Lilly",              sector: "Healthcare",             currency: USD}
+  - {ticker: XOM,   name: "Exxon Mobil",            sector: "Energy",                 currency: USD}
+  - {ticker: CVX,   name: "Chevron",                sector: "Energy",                 currency: USD}
+  - {ticker: PG,    name: "Procter & Gamble",       sector: "Consumer Staples",       currency: USD}
+  - {ticker: KO,    name: "Coca-Cola",              sector: "Consumer Staples",       currency: USD}
+  - {ticker: COST,  name: "Costco",                 sector: "Consumer Staples",       currency: USD}
+  - {ticker: HD,    name: "Home Depot",             sector: "Consumer Discretionary", currency: USD}
+  - {ticker: CAT,   name: "Caterpillar",            sector: "Industrials",            currency: USD}
+  - {ticker: GE,    name: "GE Aerospace",           sector: "Industrials",            currency: USD}
+  - {ticker: HON,   name: "Honeywell",              sector: "Industrials",            currency: USD}
+  - {ticker: LIN,   name: "Linde",                  sector: "Materials",              currency: USD}
+  - {ticker: NEE,   name: "NextEra Energy",         sector: "Utilities",              currency: USD}

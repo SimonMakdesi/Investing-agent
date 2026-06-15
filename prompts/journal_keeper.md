@@ -43,6 +43,7 @@ The most important section over the long run. 2–4 short bullets:
 
 ## How to revise versus the previous journal
 
+- **Fold in the daily decisions log, then drop it.** The previous journal may end with a `## Daily decisions log` section listing trades the Daily PM executed intra-week. Reflect those trades in Holdings (new/changed/exited positions) and, if there's a lesson, in section 4 — then **do not carry the `## Daily decisions log` section forward.** Your output is the clean four-section journal; the transaction log preserves the raw history.
 - **Remove broken theses entirely.** Do not append "old thesis was wrong, here's the new one." Just write the new one. The transaction log preserves history; the journal is for forward thinking.
 - **Carry forward intact theses verbatim** unless something changed. Stability is a feature.
 - **Add at most 2–3 new watchlist entries per week**, and drop ones that no longer earn their place.

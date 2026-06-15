@@ -105,11 +105,22 @@ def analyst_user_message(
         else "CURRENTLY HELD: no"
     )
 
+    ccy = (getattr(entry, "currency", "SEK") or "SEK").upper()
+    if ccy != "SEK":
+        from src.data import fx  # local import keeps module load cheap
+        currency_block = (
+            f"CURRENCY: {ccy} — metrics & fundamentals below are in {ccy}. "
+            f"1 {ccy} = {fx.rate(ccy):.2f} SEK today; the portfolio books this position in SEK at that rate.\n"
+        )
+    else:
+        currency_block = "CURRENCY: SEK\n"
+
     return (
         f"Today: {today.isoformat()}\n\n"
         f"COMPANY: {entry.name} ({entry.ticker})\n"
         f"SECTOR: {entry.sector}\n"
         f"TIER: {entry.tier.value}\n"
+        f"{currency_block}"
         f"SCREENER ANGLE: {angle}\n"
         f"SLEEVE HINT FROM SCREENER: {sleeve_hint}\n\n"
         f"{held_block}\n\n"
@@ -150,6 +161,48 @@ def portfolio_manager_user_message(
         f"  - Max 90% total equity exposure\n"
         f"  - Max ~10 holdings\n"
         f"  - Min 4-week holding period (full exits)\n"
+    )
+
+
+def daily_pm_user_message(
+    today: date,
+    portfolio: Portfolio,
+    prices: dict[str, float],
+    journal: str,
+    triggers_block: str,
+    analyst_full_text: list[str],
+    fx_note: str = "",
+) -> str:
+    """Build the Daily PM's user-message payload.
+
+    `triggers_block` is pre-formatted text describing the material events that
+    caused the escalation (flags, insider activity, movers with news).
+    `analyst_full_text` holds fresh Analyst notes for any not-yet-held names the
+    triggers surfaced (empty for pure manage/exit days). `fx_note` carries the
+    USD→SEK rate line when US names are in play.
+    """
+    if analyst_full_text:
+        notes_block = "\n\n".join(analyst_full_text)
+    else:
+        notes_block = "(no new-name analysis today — triggers are on held names only)"
+
+    fx_line = f"\nFX: {fx_note}\n" if fx_note else ""
+
+    return (
+        f"Today: {today.isoformat()}\n\n"
+        f"{_portfolio_summary(portfolio, prices)}\n{fx_line}\n"
+        f"JOURNAL (current thesis state):\n{_read_journal()}\n\n"
+        f"TODAY'S TRIGGERS (why you were invoked):\n{triggers_block}\n\n"
+        f"ANALYST NOTES on new (not-yet-held) names surfaced today:\n{notes_block}\n\n"
+        f"RISK CAPS (mirrors constitution §4 — enforced in code):\n"
+        f"  - Max 15% single holding (of total portfolio)\n"
+        f"  - Max 25% any single sector (of total)\n"
+        f"  - Max 10% single Aggressive position\n"
+        f"  - Max 20% Aggressive sleeve total\n"
+        f"  - Min 30% cash buffer of the Core sleeve\n"
+        f"  - Max 90% total equity exposure\n"
+        f"  - Max ~10 holdings\n"
+        f"  - Min 4-week holding period — early full exit requires thesis_break=True + rationale\n"
     )
 
 

@@ -39,6 +39,10 @@ class TradeProposal:
     sleeve: Sleeve
     sector: str
     rationale: str
+    # Set True by a PM role to exit a position held <4 weeks on a demonstrable
+    # thesis break (constitution §4: "unless thesis demonstrably breaks").
+    # Only honoured when a non-empty rationale documents the break.
+    thesis_break: bool = False
 
 
 @dataclass(frozen=True)
@@ -233,16 +237,20 @@ def _check_sell(portfolio: Portfolio, proposal: TradeProposal) -> list[Violation
             )
         )
 
-    # Min holding period — only enforced when selling *all* (partial trims allowed)
+    # Min holding period — only enforced when selling *all* (partial trims allowed).
+    # The constitution permits an early full exit when the thesis demonstrably
+    # breaks: a PM may override by setting thesis_break=True with a documented
+    # rationale. The override is recorded in transactions.log at execution time.
     now = datetime.now(tz=STOCKHOLM_TZ)
     age = now - holding.opened_at
-    if age < timedelta(days=MIN_HOLDING_PERIOD_DAYS) and abs(proposal.shares - holding.shares) < 1e-6:
-        violations.append(
-            Violation(
-                "min_holding_period",
+    full_exit = abs(proposal.shares - holding.shares) < 1e-6
+    if age < timedelta(days=MIN_HOLDING_PERIOD_DAYS) and full_exit:
+        override = proposal.thesis_break and bool(proposal.rationale.strip())
+        if not override:
+            detail = (
                 f"{proposal.ticker} held only {age.days}d (min {MIN_HOLDING_PERIOD_DAYS}d). "
-                "Override requires explicit thesis-break note.",
+                "Override requires thesis_break=True with a documented rationale."
             )
-        )
+            violations.append(Violation("min_holding_period", detail))
 
     return violations

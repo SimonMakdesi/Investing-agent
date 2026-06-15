@@ -152,24 +152,46 @@ class BorsdataClient:
             )
         return r.json()
 
+    @staticmethod
+    def _parse_instrument(raw: dict) -> Instrument:
+        return Instrument(
+            ins_id=raw["insId"],
+            name=raw.get("name", ""),
+            yahoo_ticker=raw.get("yahoo", "") or "",
+            isin=raw.get("isin", "") or "",
+            sector_id=raw.get("sectorId", 0) or 0,
+            market_id=raw.get("marketId", 0) or 0,
+            branch_id=raw.get("branchId", 0) or 0,
+            country_id=raw.get("countryId", 0) or 0,
+            currency=raw.get("stockPriceCurrency", "SEK") or "SEK",
+        )
+
     @cached_property
     def instruments(self) -> list[Instrument]:
+        """Nordic instruments, plus the global list (US etc.) when the key has
+        the Global entitlement. Global fundamentals use the same per-insId report
+        endpoints, so merging here is enough to make US names resolvable."""
         log.info("Fetching Börsdata instruments ...")
         data = self._get("/instruments")
-        out = []
-        for raw in data.get("instruments", []):
-            out.append(Instrument(
-                ins_id=raw["insId"],
-                name=raw.get("name", ""),
-                yahoo_ticker=raw.get("yahoo", "") or "",
-                isin=raw.get("isin", "") or "",
-                sector_id=raw.get("sectorId", 0) or 0,
-                market_id=raw.get("marketId", 0) or 0,
-                branch_id=raw.get("branchId", 0) or 0,
-                country_id=raw.get("countryId", 0) or 0,
-                currency=raw.get("stockPriceCurrency", "SEK") or "SEK",
-            ))
-        log.info("Loaded %d Börsdata instruments", len(out))
+        out = [self._parse_instrument(raw) for raw in data.get("instruments", [])]
+        log.info("Loaded %d Nordic Börsdata instruments", len(out))
+
+        # Global is a paid add-on; a key without it returns an error. Treat any
+        # failure as "Nordic only" rather than breaking the whole run.
+        try:
+            gdata = self._get("/instruments/global")
+            seen = {i.ins_id for i in out}
+            gcount = 0
+            for raw in gdata.get("instruments", []):
+                inst = self._parse_instrument(raw)
+                if inst.ins_id not in seen:
+                    out.append(inst)
+                    seen.add(inst.ins_id)
+                    gcount += 1
+            log.info("Loaded %d global Börsdata instruments (US etc.)", gcount)
+        except BorsdataError as e:
+            log.info("Global instruments unavailable (%s) — Nordic only", e)
+
         return out
 
     @cached_property
