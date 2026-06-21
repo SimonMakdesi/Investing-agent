@@ -1,5 +1,5 @@
 {
-  "cash_sek": 70842.25002479553,
+  "cash_sek": 66312.25002479553,
   "holdings": {
     "HM-B.ST": {
       "ticker": "HM-B.ST",
@@ -7,7 +7,8 @@
       "avg_cost": 163.6999969482422,
       "sleeve": "core",
       "opened_at": "2026-05-24T12:09:31.131988+02:00",
-      "sector": "Consumer Discretionary"
+      "sector": "Consumer Discretionary",
+      "currency": "SEK"
     },
     "ESSITY-B.ST": {
       "ticker": "ESSITY-B.ST",
@@ -15,7 +16,8 @@
       "avg_cost": 258.2066650390625,
       "sleeve": "core",
       "opened_at": "2026-05-24T12:09:31.132199+02:00",
-      "sector": "Consumer Staples"
+      "sector": "Consumer Staples",
+      "currency": "SEK"
     },
     "THULE.ST": {
       "ticker": "THULE.ST",
@@ -23,7 +25,8 @@
       "avg_cost": 226.60000610351562,
       "sleeve": "core",
       "opened_at": "2026-05-24T20:05:52.039576+02:00",
-      "sector": "Consumer Discretionary"
+      "sector": "Consumer Discretionary",
+      "currency": "SEK"
     },
     "VOLV-B.ST": {
       "ticker": "VOLV-B.ST",
@@ -31,7 +34,8 @@
       "avg_cost": 325.5,
       "sleeve": "core",
       "opened_at": "2026-05-31T20:10:58.381125+02:00",
-      "sector": "Industrials"
+      "sector": "Industrials",
+      "currency": "SEK"
     },
     "ATRLJ-B.ST": {
       "ticker": "ATRLJ-B.ST",
@@ -39,7 +43,8 @@
       "avg_cost": 26.75,
       "sleeve": "core",
       "opened_at": "2026-06-07T20:17:16.195603+02:00",
-      "sector": "Real Estate"
+      "sector": "Real Estate",
+      "currency": "SEK"
     },
     "CORE-B.ST": {
       "ticker": "CORE-B.ST",
@@ -47,7 +52,17 @@
       "avg_cost": 2.5920000076293945,
       "sleeve": "aggressive",
       "opened_at": "2026-06-14T20:24:14.069237+02:00",
-      "sector": "Real Estate"
+      "sector": "Real Estate",
+      "currency": "SEK"
+    },
+    "RUSTA.ST": {
+      "ticker": "RUSTA.ST",
+      "shares": 60.0,
+      "avg_cost": 75.5,
+      "sleeve": "core",
+      "opened_at": "2026-06-21T20:35:12.954248+02:00",
+      "sector": "Consumer Discretionary",
+      "currency": "SEK"
     }
   },
   "inception_date": "2026-05-23T23:46:58.071406+02:00",

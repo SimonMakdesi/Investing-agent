@@ -2,55 +2,60 @@
 
 ## 1. Market view
 
-Universe mixed-to-soft with unusual insider activity this week — Arnhult's Corem conviction buy opened the Aggressive sleeve for the first time. Cash at 70.8%, six positions across five sectors. Holding pattern into the July earnings cluster (Volvo, Essity, Thule all reporting Jul 23–29; ATRLJ ~Jul 10; CORE-B ~Jul 22). No urgency to deploy further before those prints resolve. Vimian and ASSA remain live but patient.
+Universe broadly weak heading into the July earnings cluster; cash at 66.4% reflects patience rather than conviction. Seven positions across five sectors, all starter-to-moderate size. The next 40 days are the critical adjudication window: ATRLJ ~Jul 10, CORE-B ~Jul 22, VOLV/ESSITY ~Jul 24, RUSTA Q1 TBD, ASSA/THULE ~Jul 28–29. No urgency to add before those prints resolve. Rusta initiated this week as the cleanest new signal; ASSA-B deferred for a better entry post-Q2.
 
 ## 2. Holdings
 
-**HM-B.ST** — Core | Consumer Discretionary | 5.0%
-- **Thesis:** Karl-Johan Persson bought ~1.2 BSEK across six transactions in eight days into an 11% drawdown — among the strongest insider signals possible on Swedish Large Cap. Starter position pending fundamental confirmation.
+**HM-B.ST** — Core | Consumer Discretionary | 4.9%
+- **Thesis:** Karl-Johan Persson bought ~1.2 BSEK across six transactions in eight days into an 11% drawdown — one of the strongest insider signals possible on Swedish Large Cap. Starter position pending fundamental confirmation.
 - **Sell if:** Profit warning, gross margin collapse, or confirmed structural market-share loss to Shein/Temu. Not on price weakness alone.
 - **Status:** `intact`
 
 **ESSITY-B.ST** — Core | Consumer Staples | 8.0%
-- **Thesis:** Exceptional 90-day insider cluster — 512 MSEK, 7 buyers, 0 sellers — led by Industrivärden. Defensive staples compounder at ~14x P/E with 3.4% yield. Q2 print ~Jul 24 is the next adjudicator.
-- **Sell if:** Sustained margin deterioration where input costs structurally exceed pricing power, or Q2 shows revenue decline accelerating with margin compression. Not on price weakness alone.
+- **Thesis:** Exceptional 90-day insider cluster — 512 MSEK, 7 buyers, 0 sellers — led by Industrivärden. Defensive staples compounder at ~14x P/E with 3.4% yield. Q2 ~Jul 24 is the next adjudicator.
+- **Sell if:** Sustained margin deterioration where input costs structurally exceed pricing power, or Q2 shows revenue decline accelerating with margin compression.
 - **Status:** `intact`
 
-**THULE.ST** — Core | Consumer Discretionary | 3.6%
-- **Thesis:** Ten insiders including chair, vice chair, CEO, and CFO bought ~14–25 MSEK across two waves, zero sellers. Quality mid-cap franchise 28% off highs; weakness is cyclical not structural. Vice chairman's ~11.6 MSEK personal buy in mid-May confirms conviction post-drawdown.
-- **Sell if:** Insider turns net seller, operating margin compresses below ~13%, or Q2 (~Jul 29) reveals genuine earnings deterioration rather than cyclical softness.
+**THULE.ST** — Core | Consumer Discretionary | 3.5%
+- **Thesis:** Ten insiders including chair, vice chair, CEO, and CFO bought ~14–25 MSEK across two waves. Quality mid-cap franchise 28% off highs; weakness is cyclical not structural. Q2 ~Jul 29 is the next adjudicator.
+- **Sell if:** Insider turns net seller, operating margin compresses below ~13%, or Q2 reveals genuine earnings deterioration rather than cyclical softness.
 - **Status:** `intact`
 
-**VOLV-B.ST** — Core | Industrials | 4.7%
-- **Thesis:** Industrivärden deployed ~290 MSEK in a single day near 52-week highs. Net cash ~58 BSEK, ~4% yield, 9.8% operating margin despite -9.5% YoY revenue. Controlling owner buying near highs is a strong forward-earnings endorsement. Q2 ~Jul 24.
-- **Sell if:** Industrivärden becomes net seller, profit warning, or Q2 reveals order intake collapse rather than cyclical normalisation. Revenue decline alone is not a sell trigger if margins hold.
+**VOLV-B.ST** — Core | Industrials | 4.8%
+- **Thesis:** Industrivärden deployed ~290 MSEK in a single day near 52-week highs. Net cash ~58 BSEK, ~4% yield, 9.8% operating margin. Controlling owner buying near highs endorses forward earnings. Q2 ~Jul 24.
+- **Sell if:** Industrivärden becomes net seller, profit warning, or Q2 reveals order intake collapse rather than cyclical normalisation.
 - **Status:** `intact`
 
-**ATRLJ-B.ST** — Core | Real Estate | 4.9%
-- **Thesis:** Tagehus (controlling family) bought ~30 MSEK into Varma's forced 7%-discount block exit. Ericsson 58k sqm Hagastaden anchor lease provides fundamental confirmation. Starter size only given net debt/equity 101%.
-- **Sell if:** Further forced-seller overhang materialises without insider response; Q2 (~Jul 10) reveals deteriorating occupancy/lease renewals; or Ericsson lease proves less economically material than signalled.
+**ATRLJ-B.ST** — Core | Real Estate | 4.8%
+- **Thesis:** Tagehus (controlling family) bought ~30 MSEK into Varma's forced 7%-discount block exit. Ericsson 58k sqm Hagastaden anchor lease provides fundamental support. Starter size given net debt/equity 101%. Q2 ~Jul 10.
+- **Sell if:** Further forced-seller overhang without insider response; Q2 reveals deteriorating occupancy/lease renewals; or Ericsson lease proves less economically material than signalled.
 - **Status:** `intact`
 
-**CORE-B.ST** — Aggressive | Real Estate | 3.0%
-- **Thesis:** Rutger Arnhult (controlling owner/CEO) bought ~110 MSEK personally across two waves into a 50%-off, capitulating leveraged commercial real estate name — clearest Aggressive sleeve signal seen this cycle. FCF positive (678 MSEK R12); this is a leverage/rate-sensitivity story, not a going-concern story. Starter size only given net debt/equity 185%.
-- **Sell if:** Dilutive equity raise announced, covenant breach disclosed, or Q2 (~Jul 22) reveals LTV deterioration or occupancy collapse. Arnhult becoming a net seller would be immediate exit.
+**CORE-B.ST** — Aggressive | Real Estate | 2.9%
+- **Thesis:** Rutger Arnhult bought ~110 MSEK personally across two waves into a 50%-off, capitulating leveraged commercial real estate name. FCF positive (678 MSEK R12); this is a leverage/rate story, not a going-concern story. Q2 ~Jul 22.
+- **Sell if:** Dilutive equity raise, covenant breach, LTV deterioration in Q2, or Arnhult becomes a net seller.
+- **Status:** `intact`
+
+**RUSTA.ST** — Core | Consumer Discretionary | 4.5%
+- **Thesis:** Controlling owner Aforber Invest bought ~52 MSEK across 13 transactions (including a single 30.6 MSEK ticket) days after a positive Q4 print and dividend raise, into a -23% drawdown. Discount retail has structural counter-cyclical tailwind. Starter size pending verification of the D/E 243% leverage (likely IFRS-16-driven but unconfirmed).
+- **Sell if:** Leverage confirmed as genuine financial debt rather than operating leases and the deleveraging path is unclear; same-store sales deteriorate; or Aforber Invest becomes a net seller.
 - **Status:** `intact`
 
 ## 3. Watchlist
 
-**VIMIAN.ST** — ~49 MSEK insider cluster (Fidelio Vet + CEO, Jun 12) on a quality animal-health compounder; +17.7% 3m recovery underway. Held back by P/E ~40 and negative FCF. Revisit after Q2 print ~Jul 29 before adding a second Aggressive position.
+**ASSA-B.ST** — Broad insider cluster (CEO ~35 MSEK + 4 operating managers) across April–June. Q2 Jul 28 is the gate. Target entry ≤340 SEK; Latour block-sale overhang may deliver it. Revisit post-print or on pullback below 335.
 
-**ASSA-B.ST** — CEO bought ~35 MSEK across April and June on a quality compounder; stock at 332 vs 315 entry target. Q2 ~Jul 28. Watch for price reaching 315 SEK or post-print entry.
+**VIMIAN.ST** — Fidelio Vet + CEO bought ~128 MSEK over two weeks; signal is real but anchor-holder concentrated and FCF is -243 MEUR. Q2 ~Jul 29. Analyst would-buy-at 27 SEK; watch into the print, reassess fundamentals then.
 
-**NOLA-B.ST** — Quality industrial (10.8% op margin, clean balance sheet) at 23% drawdown with CEO transition overhang and shrinking revenue. Screener's "10.8 MSEK insider buy" was misleading — actual disclosed buy only 205k SEK. Revisit after Q2 ~Aug 5 and new CEO's first framing.
+**NOLA-B.ST** — Principal owner Herenco bought ~25 MSEK in three clustered June purchases; clean signal endorsing the CEO transition. Revenue declining multi-year (-3.2% YoY). Entry target ~47 SEK; prefer to wait for Q2 (Aug 5) print under new CEO before sizing.
 
-**LIFCO-B.ST** — April insider cluster (3 buyers, ~12 MSEK) still valid but stock rallied +10.5% 1m; original 270 SEK anchor stale. Revised entry zone 275–285 SEK. Revisit post-Q2 ~Jul 24 if price resets.
+**LIFCO-B.ST** — Strong insider cluster (3 distinct buyers, board member 2x, ~10 MSEK around Q1 print) on a quality compounder. Price at 307 is above the 275–285 entry zone. Wait for Q2 (~Jul 24) pullback or post-print confirmation; re-screen week of Jul 21.
 
-**SCST.ST** — Exceptional 8-buyer / 30 MSEK cluster including strategic peer Grupo Lusiaves. Still extended (+25% above 200MA). Revisit if price pulls back to ~135 SEK or post-Jul 28 earnings.
+**HEXA-B.ST** — 4 management buyers including CFO bought ~12.4 MSEK into a -20% drawdown; no sellers. Data quality flag: fundamentals block contains implausible values (P/E 0.9, FCF yield 154%) — cannot validate valuation. Q2 ~Jul 25. Starter defensible on insider signal alone if data is cleaned up; otherwise wait for print.
 
 ## 4. Lessons learned / open questions
 
-- **Aggressive sleeve discipline:** CORE-B is the first use of the Aggressive sleeve — correctly sized small (~3%), entered on the clearest possible signal (controlling owner, personal capital, two waves). The sleeve exists for exactly this; the multi-week hesitation to open it was correct patience, not timidity.
-- **Correlated real estate exposure:** Both ATRLJ and CORE-B are leveraged Swedish commercial real estate — partially correlated. Combined ~7.9%. Sector cap is 25% but concentration risk is real; no further real estate adds without rebalancing one of these.
-- **Screener signal vs disclosed filing:** NOLA-B screener angle ("10.8 MSEK insider buy") did not match FI disclosure (205k SEK). Reinforces standing rule: cross-check every cluster signal against actual filings before acting. This is the same screener hygiene issue flagged last week.
-- **Open question:** Four positions report in a 12-day window (ATRLJ ~Jul 10, CORE-B ~Jul 22, Volvo/Essity ~Jul 24, Thule ~Jul 29). Consider whether any pre-print trimming is warranted, or whether current sizes (all ≤8%) provide sufficient cushion across what is effectively one concentrated reporting season.
+- **Rusta fill vs limit:** PM set limit at 86 SEK, execution filled at 75.50 — meaningfully better entry. No lesson to change, but note that the market offered a 12% better price than the limit; the conservative limit was correct given elevated vol (48.6%).
+- **Consumer Discretionary concentration:** HM + Thule + Rusta = ~13% of portfolio. No further Consumer Discretionary adds without rebalancing one of these, even if the insider signal is strong. The sector cap (25%) is not close, but three correlated names is enough.
+- **Correlated real estate:** ATRLJ + CORE-B = ~7.7%, both leveraged Swedish commercial real estate. No further real estate adds without rebalancing one first.
+- **Open question — earnings cluster:** ATRLJ (Jul 10), CORE-B (Jul 22), VOLV/ESSITY (Jul 24), ASSA/THULE (Jul 28–29) all land in a 19-day window. Consider whether any pre-print trimming is warranted, or whether current starter sizing provides sufficient cushion. Reassess at next weekly cycle once ATRLJ reports first.
