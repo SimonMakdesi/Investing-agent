@@ -302,7 +302,7 @@ def _build_decisions_view(claude_calls: list[dict], transactions: list[dict]) ->
                     headline=f"{verdict or 'verdict?'} (conv {conv or '?'})",
                     detail=_first_sentence_of_thesis(text),
                 ))
-        elif role == "portfolio_manager":
+        elif role in ("portfolio_manager", "trader"):
             for trade in _parse_pm_trades(text):
                 out.append(DecisionView(
                     iso_date=iso_date, role=role, ticker=trade.get("ticker", "?"),
@@ -410,29 +410,32 @@ def _render_html(
     excess_pct = pnl_pct - bm_pnl_pct
     cash_pct = (portfolio.cash_sek / current_value * 100) if current_value else 0
 
-    # Sleeve & sector aggregations
-    sleeve_alloc = {"Core": 0.0, "Aggressive": 0.0, "Cash": portfolio.cash_sek}
+    # v2: no sleeves. Cash-vs-invested ring + sector breakdown.
+    invested_value = sum(h.value_sek for h in holdings)
+    coinage_alloc = {"Invested": invested_value, "Cash": portfolio.cash_sek}
     sector_alloc: dict[str, float] = {}
     for h in holdings:
-        sleeve_key = "Core" if h.sleeve == "core" else "Aggressive"
-        sleeve_alloc[sleeve_key] += h.value_sek
         sector_alloc[h.sector] = sector_alloc.get(h.sector, 0.0) + h.value_sek
     if portfolio.cash_sek > 0:
         sector_alloc["Cash"] = portfolio.cash_sek
+
+    # Target floor & deposit-neutral pace (the v2 north star).
+    from src.pace import compute_pace
+    pace = compute_pace(portfolio, current_value, date.today())
+    pace_word = "AHEAD" if pace.gap_pct > 1 else ("BEHIND" if pace.gap_pct < -1 else "ON")
 
     series_json = json.dumps([{
         "date": s.iso_date,
         "portfolio": s.portfolio_sek,
         "benchmark": s.benchmark_normalized_sek,
     } for s in series])
-    sleeve_json = json.dumps(sleeve_alloc)
+    coinage_json = json.dumps(coinage_alloc)
     sector_json = json.dumps(sector_alloc)
 
     holdings_rows = "\n".join(
         f"<tr>"
         f"<td class='num font-semibold' style='color: var(--ink); letter-spacing:0.04em;'>{html.escape(h.ticker)}</td>"
         f"<td class='script' style='color: var(--ink-fade);'>{html.escape(h.sector)}</td>"
-        f"<td>{_guild_mark(h.sleeve)}</td>"
         f"<td class='num text-right'>{h.shares:.0f}</td>"
         f"<td class='num text-right'>{h.avg_cost:.2f}</td>"
         f"<td class='num text-right'>{h.current_price:.2f}</td>"
@@ -819,8 +822,8 @@ def _render_html(
       <h2 class="section-title"><span class="glyph">✦</span> Coinage <span class="glyph">✦</span></h2>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <div class="smallcaps text-[10px] text-center mb-2" style="color: var(--gold-deep);">— Guild —</div>
-          <canvas id="sleeveChart" height="160"></canvas>
+          <div class="smallcaps text-[10px] text-center mb-2" style="color: var(--gold-deep);">— Coin vs Shares —</div>
+          <canvas id="coinageChart" height="160"></canvas>
         </div>
         <div>
           <div class="smallcaps text-[10px] text-center mb-2" style="color: var(--gold-deep);">— Dominion —</div>
@@ -833,6 +836,18 @@ def _render_html(
         <div class="flex justify-between"><span class="smallcaps text-xs" style="color: var(--gold-deep);">Bound in shares</span><span class="num font-semibold">{current_value - portfolio.cash_sek:,.0f} ({100 - cash_pct:.1f}%)</span></div>
         <div class="flex justify-between"><span class="smallcaps text-xs" style="color: var(--gold-deep);">Holdings</span><span class="num font-semibold">{len(holdings)}</span></div>
       </div>
+      <div class="divider-ornate"></div>
+      <div class="smallcaps text-[10px] mb-1" style="color: var(--gold-deep);">— Coffers vs Conquest —</div>
+      <div class="space-y-1.5 text-sm">
+        <div class="flex justify-between"><span class="smallcaps text-xs" style="color: var(--gold-deep);">Deposits paid in (thine coin)</span><span class="num font-semibold">{total_contributed:,.0f}</span></div>
+        <div class="flex justify-between"><span class="smallcaps text-xs" style="color: var(--gold-deep);">Won by the agent's hand</span><span class="num font-semibold {gain_class}">{invested_gain:+,.0f}</span></div>
+      </div>
+      <div class="divider-ornate"></div>
+      <div class="smallcaps text-[10px] mb-1" style="color: var(--gold-deep);">— The Quest: +{pace.target_return_pct:.0f}% in 6 moons (a floor, not a ceiling) —</div>
+      <div class="space-y-1.5 text-sm">
+        <div class="flex justify-between"><span class="smallcaps text-xs" style="color: var(--gold-deep);">Return (deposit-neutral)</span><span class="num font-semibold {pnl_class}">{pace.actual_return_pct:+.1f}% TWR</span></div>
+        <div class="flex justify-between"><span class="smallcaps text-xs" style="color: var(--gold-deep);">Standing vs floor</span><span class="num font-semibold">{pace_word} (floor {pace.on_pace_return_pct:+.1f}%)</span></div>
+      </div>
     </div>
 
   </div>
@@ -843,7 +858,7 @@ def _render_html(
     <div class="overflow-x-auto">
       <table>
         <thead><tr>
-          <th>Sigil</th><th>Dominion</th><th>Guild</th>
+          <th>Sigil</th><th>Dominion</th>
           <th class="text-right">Shares</th><th class="text-right">Cost</th><th class="text-right">Now</th>
           <th class="text-right">Value</th><th class="text-right">Stake</th><th class="text-right">Fortune</th>
           <th>Oath</th><th class="text-right">Sworn</th>
@@ -911,7 +926,7 @@ def _render_html(
 
 <script>
 const series = {series_json};
-const sleeveData = {sleeve_json};
+const coinageData = {coinage_json};
 const sectorData = {sector_json};
 
 // Fantasy palette — gold, sapphire, blood, moss, bronze, parchment
@@ -1049,7 +1064,7 @@ function donut(canvasId, data) {{
     }},
   }});
 }}
-donut('sleeveChart', sleeveData);
+donut('coinageChart', coinageData);
 donut('sectorChart', sectorData);
 </script>
 
@@ -1137,8 +1152,10 @@ def _guild_mark(sleeve: str) -> str:
 
 def _role_badge(role: str) -> str:
     role_label_map = {
+        "scout": ("Scout", "role-analyst"),
         "analyst": ("Analyst", "role-analyst"),
-        "portfolio_manager": ("Manager", "role-pm"),
+        "trader": ("Trader", "role-pm"),
+        "portfolio_manager": ("Trader", "role-pm"),  # legacy archived calls
         "executed": ("Decree", "role-executed"),
     }
     label, cls = role_label_map.get(role, (role or "—", "role-other"))
