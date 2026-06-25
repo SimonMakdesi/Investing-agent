@@ -31,28 +31,28 @@ PROMPTS_DIR = REPO_ROOT / "prompts"
 CALL_ARCHIVE = ARCHIVE_DIR / "claude_calls"
 
 # Model IDs — see CLAUDE.md and pyproject.toml for context.
-MODEL_OPUS = "claude-opus-4-7"
+MODEL_OPUS = "claude-opus-4-8"
 MODEL_SONNET = "claude-sonnet-4-6"
+MODEL_HAIKU = "claude-haiku-4-5-20251001"
 
-# Per-role default model. Opus for the high-stakes reasoning calls;
-# Sonnet for compression / journaling / monitoring where it's plenty.
+# Per-role default model (v2: four roles, cheap->expensive escalation ladder).
+#   Scout         — daily, always; cheap triage over the whole universe + book
+#   Analyst       — deep per-name research; the expensive reasoning
+#   Trader        — the one decision call (buy/sell/rotate)
+#   Journal Keeper— private structured memory; cheap
 ROLE_MODEL: dict[str, str] = {
-    "screener": MODEL_SONNET,
+    "scout": MODEL_HAIKU,
     "analyst": MODEL_OPUS,
-    "portfolio_manager": MODEL_OPUS,
-    "daily_pm": MODEL_OPUS,  # event-driven daily trade decisions — high-stakes, so Opus
-    "journal_keeper": MODEL_SONNET,
-    "event_monitor": MODEL_SONNET,
+    "trader": MODEL_OPUS,
+    "journal_keeper": MODEL_HAIKU,
 }
 
 # Max output tokens per role. Keep these tight — long responses are a smell.
 ROLE_MAX_TOKENS: dict[str, int] = {
-    "screener": 2_000,
+    "scout": 2_000,
     "analyst": 4_000,
-    "portfolio_manager": 4_000,
-    "daily_pm": 4_000,
+    "trader": 4_000,
     "journal_keeper": 3_000,
-    "event_monitor": 1_500,
 }
 
 

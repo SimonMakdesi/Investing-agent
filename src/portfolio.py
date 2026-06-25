@@ -23,6 +23,9 @@ log = logging.getLogger(__name__)
 
 
 class Sleeve(str, Enum):
+    # v2 is a single book — sleeves are no longer enforced (see risk.py / CLAUDE.md §4).
+    # The enum is kept only so existing portfolio.json state and the dashboard
+    # keep loading. New positions default to CORE and the label carries no rule.
     CORE = "core"
     AGGRESSIVE = "aggressive"
 
@@ -39,11 +42,65 @@ class Holding(BaseModel):
     currency: str = "SEK"
 
 
+class Contribution(BaseModel):
+    """One external cash injection (the owner topping up the fake account).
+
+    `value_before_sek` is the portfolio's total mark-to-market value the instant
+    BEFORE the cash landed — that snapshot is what lets us compute a
+    contribution-neutral time-weighted return (see src/pace.py). Contributions
+    are NOT investing gains and must never be counted as performance.
+    """
+    date: datetime
+    amount_sek: float
+    value_before_sek: float
+
+
 class Portfolio(BaseModel):
     cash_sek: float
     holdings: dict[str, Holding] = Field(default_factory=dict)
     inception_date: datetime
     initial_capital_sek: float
+    # External top-ups after the initial seed. Empty for legacy state (which then
+    # has just the seed as its only contributed capital).
+    contributions: list[Contribution] = Field(default_factory=list)
+
+    def total_contributed(self) -> float:
+        """All external money put in: the initial seed plus every top-up."""
+        return self.initial_capital_sek + sum(c.amount_sek for c in self.contributions)
+
+    def invested_gain_sek(self, prices: dict[str, float]) -> float:
+        """Absolute money the AI made by investing, contributions removed."""
+        return self.value(prices) - self.total_contributed()
+
+    def contribute(
+        self,
+        amount_sek: float,
+        value_before_sek: float,
+        when: datetime | None = None,
+        log_txn: bool = True,
+    ) -> None:
+        """Add an external cash injection. Records the pre-injection value so the
+        TWR stays honest, and logs it as a distinct 'contribution' transaction.
+        Pass log_txn=False for a dry-run preview (mutate in-memory, no file write)."""
+        if amount_sek <= 0:
+            raise ValueError("contribution must be positive")
+        now = when or datetime.now(tz=STOCKHOLM_TZ)
+        self.cash_sek += amount_sek
+        self.contributions.append(
+            Contribution(date=now, amount_sek=amount_sek, value_before_sek=value_before_sek)
+        )
+        if not log_txn:
+            return
+        _log_transaction(
+            {
+                "ts": now.isoformat(),
+                "action": "contribution",
+                "amount_sek": amount_sek,
+                "value_before_sek": value_before_sek,
+                "cash_after": self.cash_sek,
+                "total_contributed": self.total_contributed(),
+            }
+        )
 
     @classmethod
     def load(cls, path: Path = PORTFOLIO_FILE) -> "Portfolio":
@@ -72,7 +129,7 @@ class Portfolio(BaseModel):
         ticker: str,
         shares: float,
         price: float,
-        sleeve: Sleeve,
+        sleeve: Sleeve = Sleeve.CORE,
         sector: str | None = None,
         rationale: str = "",
         currency: str = "SEK",
@@ -88,11 +145,8 @@ class Portfolio(BaseModel):
         now = datetime.now(tz=STOCKHOLM_TZ)
         existing = self.holdings.get(ticker)
         if existing:
-            if existing.sleeve != sleeve:
-                raise ValueError(
-                    f"Sleeve mismatch for {ticker}: existing={existing.sleeve}, new={sleeve}. "
-                    "Resolve sleeve label before adding."
-                )
+            # v2 is a single book — no sleeve-mismatch rejection. Keep the
+            # existing label; the sleeve carries no rule anymore.
             total_shares = existing.shares + shares
             total_cost = existing.shares * existing.avg_cost + cost
             existing.shares = total_shares

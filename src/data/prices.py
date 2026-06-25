@@ -30,16 +30,24 @@ def get_latest_close(ticker: str) -> PriceSnapshot | None:
         t = yf.Ticker(ticker)
         # 5d window handles weekends/holidays without pulling a year of history.
         hist = t.history(period="5d", auto_adjust=False)
-        if hist.empty:
+        if hist.empty or "Close" not in hist.columns:
             log.warning("No price history returned for %s", ticker)
             return None
-        last = hist.iloc[-1]
-        last_date = hist.index[-1].date()
+        # Drop NaN closes and take the last VALID one. yfinance often returns a
+        # trailing NaN bar (today's not-yet-closed session, or a throttled/partial
+        # response); taking iloc[-1] blindly would yield a NaN price that then
+        # poisons valuation, pace, and the report.
+        closes = hist["Close"].dropna()
+        if closes.empty:
+            log.warning("Only NaN closes for %s — treating as unavailable", ticker)
+            return None
+        close_val = float(closes.iloc[-1])
+        last_date = closes.index[-1].date()
         currency = t.fast_info.get("currency", "SEK") if hasattr(t, "fast_info") else "SEK"
         return PriceSnapshot(
             ticker=ticker,
             as_of=last_date,
-            close=float(last["Close"]),
+            close=close_val,
             currency=currency,
         )
     except Exception as e:

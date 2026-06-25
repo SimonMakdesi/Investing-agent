@@ -1,28 +1,35 @@
 """Risk checker — enforces CLAUDE.md §4 hard rules in code.
 
-The Portfolio Manager (Claude) proposes trades; this module is the
-final gate. Any violation here aborts execution. Claude cannot bypass
-these rules because they live in Python, not in prompt text.
+v2 (aggressive, one-book): the Trader (Claude) proposes trades; this module is
+the final gate. Any violation here aborts execution. Claude cannot bypass these
+rules because they live in Python, not in prompt text.
+
+The sleeves are gone. Every position competes in a single book. The caps are
+looser than v1 on purpose (the owner runs this as an aggressive capability
+test), but they are still HARD limits:
+
+  - Max 30% in any single holding (of total portfolio)
+  - Max 40% in any single sector (of total portfolio)
+  - Max ~8 holdings total
+  - Min ~5% cash (so max ~95% equity)
+  - No minimum holding period, no minimum holding count
+  - Long-only: a SELL can never exceed the held quantity; no shorting/leverage
+    is representable in the portfolio engine at all.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 from enum import Enum
 
-from src.config import STOCKHOLM_TZ
 from src.portfolio import Portfolio, Sleeve
 
-# Hard caps from CLAUDE.md §4
-MAX_SINGLE_HOLDING_PCT = 15.0
-MAX_SECTOR_PCT = 25.0
-MAX_AGGRESSIVE_SINGLE_PCT = 10.0
-MAX_AGGRESSIVE_SLEEVE_PCT = 20.0
-MIN_CORE_CASH_PCT_OF_SLEEVE = 30.0  # cash buffer of the core sleeve itself
-MAX_TOTAL_EQUITY_PCT = 90.0
-MAX_HOLDINGS = 10
-MIN_HOLDING_PERIOD_DAYS = 28  # 4 weeks
+# Hard caps from CLAUDE.md §4 (v2)
+MAX_SINGLE_HOLDING_PCT = 30.0
+MAX_SECTOR_PCT = 40.0
+MAX_HOLDINGS = 8
+MIN_CASH_PCT = 5.0          # min cash buffer of total portfolio
+MAX_TOTAL_EQUITY_PCT = 95.0  # == 100 - MIN_CASH_PCT
 
 
 class Action(str, Enum):
@@ -36,12 +43,14 @@ class TradeProposal:
     ticker: str
     shares: float
     price: float
-    sleeve: Sleeve
     sector: str
     rationale: str
-    # Set True by a PM role to exit a position held <4 weeks on a demonstrable
-    # thesis break (constitution §4: "unless thesis demonstrably breaks").
-    # Only honoured when a non-empty rationale documents the break.
+    # Kept for backward-compatibility with callers that still pass a sleeve.
+    # v2 is one book, so this is ignored by the risk checks.
+    sleeve: Sleeve = Sleeve.CORE
+    # v1 left this around to override the (now-removed) minimum holding period.
+    # There is no min-hold in v2, so it has no effect; kept so existing callers
+    # that set it don't break.
     thesis_break: bool = False
 
 
@@ -89,7 +98,7 @@ def _check_buy(
     violations: list[Violation] = []
     cost = proposal.shares * proposal.price
 
-    # 1. Cash sufficiency
+    # 1. Cash sufficiency — long-only: you can only buy with cash on hand.
     if cost > portfolio.cash_sek + 1e-6:
         violations.append(
             Violation(
@@ -99,19 +108,17 @@ def _check_buy(
         )
         return violations  # everything else is moot if we can't pay
 
-    # Project the post-trade portfolio mentally (don't mutate the real one)
+    # Project the post-trade portfolio (don't mutate the real one)
     post_holdings = {t: h.shares for t, h in portfolio.holdings.items()}
     post_holdings[proposal.ticker] = post_holdings.get(proposal.ticker, 0.0) + proposal.shares
     post_cash = portfolio.cash_sek - cost
 
-    # Total value uses current prices where known, else avg cost
     def value_of(ticker: str, shares: float) -> float:
         if ticker in prices:
             return shares * prices[ticker]
         h = portfolio.holdings.get(ticker)
         if h:
             return shares * h.avg_cost
-        # Newly added position with no existing avg_cost — use the trade price
         return shares * proposal.price
 
     total_value = post_cash + sum(value_of(t, s) for t, s in post_holdings.items())
@@ -126,27 +133,17 @@ def _check_buy(
             )
         )
 
-    # 3. Max single holding (15% of total)
-    pct = new_position_value / total_value * 100.0
+    # 3. Max single holding (30% of total)
+    pct = new_position_value / total_value * 100.0 if total_value else 0.0
     if pct > MAX_SINGLE_HOLDING_PCT + 1e-6:
         violations.append(
             Violation(
                 "max_single_holding",
-                f"{proposal.ticker} would be {pct:.1f}% of portfolio (cap {MAX_SINGLE_HOLDING_PCT}%)",
+                f"{proposal.ticker} would be {pct:.1f}% of portfolio (cap {MAX_SINGLE_HOLDING_PCT:.0f}%)",
             )
         )
 
-    # 4. Max aggressive single (10% of total) for aggressive trades
-    if proposal.sleeve == Sleeve.AGGRESSIVE and pct > MAX_AGGRESSIVE_SINGLE_PCT + 1e-6:
-        violations.append(
-            Violation(
-                "max_aggressive_single",
-                f"{proposal.ticker} (aggressive) would be {pct:.1f}% "
-                f"(cap {MAX_AGGRESSIVE_SINGLE_PCT}%)",
-            )
-        )
-
-    # 5. Sector cap (25%)
+    # 4. Sector cap (40%)
     sector = proposal.sector
     sector_value = 0.0
     for t, s in post_holdings.items():
@@ -158,67 +155,26 @@ def _check_buy(
         )
         if t_sector == sector:
             sector_value += value_of(t, s)
-    sector_pct = sector_value / total_value * 100.0
+    sector_pct = sector_value / total_value * 100.0 if total_value else 0.0
     if sector_pct > MAX_SECTOR_PCT + 1e-6:
         violations.append(
             Violation(
                 "max_sector",
-                f"Sector '{sector}' would be {sector_pct:.1f}% (cap {MAX_SECTOR_PCT}%)",
+                f"Sector '{sector}' would be {sector_pct:.1f}% (cap {MAX_SECTOR_PCT:.0f}%)",
             )
         )
 
-    # 6. Aggressive sleeve cap (20%)
-    aggressive_value = 0.0
-    for t, s in post_holdings.items():
-        t_sleeve = (
-            proposal.sleeve
-            if t == proposal.ticker
-            else (portfolio.holdings[t].sleeve if t in portfolio.holdings else None)
-        )
-        if t_sleeve == Sleeve.AGGRESSIVE:
-            aggressive_value += value_of(t, s)
-    aggressive_pct = aggressive_value / total_value * 100.0
-    if aggressive_pct > MAX_AGGRESSIVE_SLEEVE_PCT + 1e-6:
-        violations.append(
-            Violation(
-                "max_aggressive_sleeve",
-                f"Aggressive sleeve would be {aggressive_pct:.1f}% (cap {MAX_AGGRESSIVE_SLEEVE_PCT}%)",
-            )
-        )
-
-    # 7. Total equity exposure (max 90%)
+    # 5. Total equity exposure (max 95% -> min 5% cash)
     total_equity = sum(value_of(t, s) for t, s in post_holdings.items())
-    equity_pct = total_equity / total_value * 100.0
+    equity_pct = total_equity / total_value * 100.0 if total_value else 0.0
     if equity_pct > MAX_TOTAL_EQUITY_PCT + 1e-6:
         violations.append(
             Violation(
-                "max_total_equity",
-                f"Equity exposure would be {equity_pct:.1f}% (cap {MAX_TOTAL_EQUITY_PCT}%)",
+                "min_cash_buffer",
+                f"Equity would be {equity_pct:.1f}% — leaves <{MIN_CASH_PCT:.0f}% cash "
+                f"(cap {MAX_TOTAL_EQUITY_PCT:.0f}% equity)",
             )
         )
-
-    # 8. Core sleeve cash buffer (≥30% of core sleeve as cash)
-    # Interpreted as: cash should be at least 30% of (cash + core equity)
-    core_equity = 0.0
-    for t, s in post_holdings.items():
-        t_sleeve = (
-            proposal.sleeve
-            if t == proposal.ticker
-            else (portfolio.holdings[t].sleeve if t in portfolio.holdings else Sleeve.CORE)
-        )
-        if t_sleeve == Sleeve.CORE:
-            core_equity += value_of(t, s)
-    core_sleeve_total = core_equity + post_cash
-    if core_sleeve_total > 0:
-        core_cash_pct = post_cash / core_sleeve_total * 100.0
-        if core_cash_pct < MIN_CORE_CASH_PCT_OF_SLEEVE - 1e-6:
-            violations.append(
-                Violation(
-                    "core_cash_buffer",
-                    f"Cash would be {core_cash_pct:.1f}% of core sleeve "
-                    f"(min {MIN_CORE_CASH_PCT_OF_SLEEVE}%)",
-                )
-            )
 
     return violations
 
@@ -229,28 +185,14 @@ def _check_sell(portfolio: Portfolio, proposal: TradeProposal) -> list[Violation
     if not holding:
         violations.append(Violation("not_held", f"Cannot sell {proposal.ticker}: not held"))
         return violations
+    # Long-only invariant: cannot sell more than held (no shorting).
     if proposal.shares > holding.shares + 1e-9:
         violations.append(
             Violation(
                 "oversold",
-                f"Sell of {proposal.shares} exceeds holding {holding.shares} of {proposal.ticker}",
+                f"Sell of {proposal.shares} exceeds holding {holding.shares} of {proposal.ticker} "
+                "(long-only: no shorting)",
             )
         )
-
-    # Min holding period — only enforced when selling *all* (partial trims allowed).
-    # The constitution permits an early full exit when the thesis demonstrably
-    # breaks: a PM may override by setting thesis_break=True with a documented
-    # rationale. The override is recorded in transactions.log at execution time.
-    now = datetime.now(tz=STOCKHOLM_TZ)
-    age = now - holding.opened_at
-    full_exit = abs(proposal.shares - holding.shares) < 1e-6
-    if age < timedelta(days=MIN_HOLDING_PERIOD_DAYS) and full_exit:
-        override = proposal.thesis_break and bool(proposal.rationale.strip())
-        if not override:
-            detail = (
-                f"{proposal.ticker} held only {age.days}d (min {MIN_HOLDING_PERIOD_DAYS}d). "
-                "Override requires thesis_break=True with a documented rationale."
-            )
-            violations.append(Violation("min_holding_period", detail))
-
+    # No minimum holding period in v2 — same-day rotation is allowed by design.
     return violations

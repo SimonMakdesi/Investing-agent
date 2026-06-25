@@ -1,4 +1,26 @@
-# Project Brief: Autonomous Swedish Stock Analyst Agent
+# Project Brief: Autonomous Stock Analyst Agent
+
+> ## ⚠️ v2 AMENDMENT (2026-06-25) — read this first
+>
+> The original brief below described a **cautious, benchmark-tracking Swedish paper portfolio**. The owner has since pivoted to a **v2 "aggressive" mandate**. Where this brief and the v2 amendment disagree, **the constitution (`CLAUDE.md`) is canonical** and v2 wins. The historical text is kept for context only.
+>
+> **What changed in v2:**
+> - **Goal flipped:** from "perform comparably to OMXS30 at moderate risk" → **actively chase +50% / 6 months** as a north-star target. It is fake money and a capability test; large drawdowns are acceptable. (§2, §13 below are superseded.)
+> - **Markets:** Swedish market **+ the US market**, treated as **one universe with no home bias**. Swedish names auto-pulled across all caps; US widened from a handful of mega-caps to a broad **liquidity-floored** list. (§1, §5 below extended.)
+> - **Risk model collapsed to one book** (no Core/Aggressive sleeves). New hard caps: **30% max single holding, 40% max sector, ~8 max holdings, ≥5% cash, no minimum holding period, no minimum holding count.** Still **long-only — no leverage, shorting, or derivatives** (hard line). (§8 below superseded.)
+> - **Capital rotation is first-class:** sell a good-but-not-best holding to fund a better idea, not only on thesis break.
+> - **Agents redesigned from 5 roles → 4** with a cheap→expensive escalation ladder:
+>   - **Scout** (Haiku) — daily, always. Merges the old Screener + Event Monitor. Scans the full US+SE universe **and the current book**, surfacing buy *and* sell/rotation candidates. The cost gate.
+>   - **Analyst** (Opus) — daily, conviction-gated, **up to 8 names/day**. Deep note per surfaced name.
+>   - **Trader** (Opus) — daily when candidates exist. Merges the old Portfolio Manager + Daily PM. Buys/sells/rotates against the target pace; sees the whole book.
+>   - **Journal Keeper** (Haiku) — daily append + weekly rewrite. The agent's private structured memory, not a report.
+> - **Cadence:** full decision cycle **every weekday at 22:00 UTC** (after the US close, so both markets get same-day prices) + a **Saturday deep review** (full-universe re-sweep + whole-book rotation + target re-pace).
+> - **Reporting:** terse. The agent **no longer writes rationale essays for the owner** — reports show what it did, position sizes, and P&L vs the +50% pace line. A one-line internal rationale/sell-trigger is kept only for the agent's own memory.
+> - **Cost / keys:** no new API keys (same Anthropic + Börsdata-Global + yfinance + FI insider + Gmail stack). Roughly $15–30/mo; universe width is nearly free, Opus firing is the cost lever.
+>
+> Everything from "## 1. Vision" down is the **original v1 brief**, retained for history.
+
+---
 
 ## 1. Vision
 

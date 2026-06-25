@@ -36,7 +36,8 @@ BENCHMARK_TICKER = "^OMX"  # OMX Stockholm 30
 class TimeSeriesPoint:
     iso_date: str
     portfolio_sek: float
-    benchmark_normalized_sek: float
+    benchmark_normalized_sek: float  # money-weighted: same cashflows invested in the index
+    benchmark_index_ratio: float = 1.0  # pure index level vs inception (for TWR-style %)
 
 
 @dataclass
@@ -166,6 +167,13 @@ def _build_value_series(portfolio: Portfolio, transactions: list[dict]) -> list[
     cash = portfolio.initial_capital_sek
     holdings: dict[str, float] = {}  # ticker -> shares
 
+    # Cashflows into the book (seed at inception + every external contribution),
+    # used to build a FAIR money-weighted benchmark: each deposit buys index at
+    # its own date so the benchmark line receives the same money the book did.
+    cashflows: list[tuple[date, float]] = [(start, portfolio.initial_capital_sek)]
+    for c in portfolio.contributions:
+        cashflows.append((c.date.date(), c.amount_sek))
+
     # Build dict from date->sorted txs so we apply in order
     bm_start = closest_bm(start) or 1.0
     series: list[TimeSeriesPoint] = []
@@ -189,6 +197,9 @@ def _build_value_series(portfolio: Portfolio, transactions: list[dict]) -> list[
                         holdings[ticker] = max(0, holdings[ticker] - shares)
                         if holdings[ticker] < 1e-9:
                             del holdings[ticker]
+                elif action == "contribution":
+                    # External top-up: adds cash to the book at this date.
+                    cash += float(tx.get("amount_sek") or 0)
             # Mark these as applied
             txs_by_date[d] = []
 
@@ -201,12 +212,23 @@ def _build_value_series(portfolio: Portfolio, transactions: list[dict]) -> list[
         portfolio_value = cash + equity_value
 
         bm_now = closest_bm(snap_date)
-        bm_value = (bm_now / bm_start) * portfolio.initial_capital_sek if bm_now and bm_start else portfolio.initial_capital_sek
+        # Money-weighted benchmark: each cashflow so far, grown at the index from
+        # its own date. Falls back to raw deposited sum if the index is missing.
+        if bm_now:
+            bm_value = 0.0
+            for cdate, amt in cashflows:
+                if cdate <= snap_date:
+                    bm_at = closest_bm(cdate) or bm_start
+                    bm_value += amt * (bm_now / bm_at) if bm_at else amt
+        else:
+            bm_value = sum(amt for cdate, amt in cashflows if cdate <= snap_date)
+        bm_ratio = (bm_now / bm_start) if (bm_now and bm_start) else 1.0
 
         series.append(TimeSeriesPoint(
             iso_date=snap_date.isoformat(),
             portfolio_sek=round(portfolio_value, 0),
             benchmark_normalized_sek=round(bm_value, 0),
+            benchmark_index_ratio=bm_ratio,
         ))
     return series
 
@@ -375,12 +397,16 @@ def _render_html(
     decisions: list[DecisionView],
     token_usage: dict,
 ) -> str:
-    # Headline numbers
+    # Headline numbers. Performance is DEPOSIT-NEUTRAL (TWR) so monthly top-ups
+    # never count as gains; the SEK breakdown shows deposits vs invested gain.
+    from src.pace import time_weighted_return
+
     latest = series[-1] if series else None
     current_value = latest.portfolio_sek if latest else portfolio.initial_capital_sek
-    benchmark_value = latest.benchmark_normalized_sek if latest else portfolio.initial_capital_sek
-    pnl_pct = (current_value / portfolio.initial_capital_sek - 1) * 100
-    bm_pnl_pct = (benchmark_value / portfolio.initial_capital_sek - 1) * 100
+    total_contributed = portfolio.total_contributed()
+    invested_gain = current_value - total_contributed
+    pnl_pct = time_weighted_return(portfolio, current_value)
+    bm_pnl_pct = (latest.benchmark_index_ratio - 1) * 100 if latest else 0.0
     excess_pct = pnl_pct - bm_pnl_pct
     cash_pct = (portfolio.cash_sek / current_value * 100) if current_value else 0
 
@@ -450,6 +476,7 @@ def _render_html(
     pnl_class = "ledger-positive" if pnl_pct >= 0 else "ledger-negative"
     bm_class = "ledger-positive" if bm_pnl_pct >= 0 else "ledger-negative"
     excess_class = "ledger-positive" if excess_pct >= 0 else "ledger-negative"
+    gain_class = "ledger-positive" if invested_gain >= 0 else "ledger-negative"
     pnl_sigil = "▲" if pnl_pct >= 0 else "▼"
 
     return f"""<!DOCTYPE html>
@@ -766,9 +793,13 @@ def _render_html(
         <div class="smallcaps text-[11px]" style="color: var(--gold-deep);">Coffers Total</div>
         <div class="loot-value {pnl_class}">{current_value:,.0f}<span class="loot-currency">SEK</span></div>
         <div class="script mt-3 text-sm" style="color: var(--ink-fade);">
-          <span class="num {pnl_class}">{pnl_sigil} {pnl_pct:+.2f}%</span> against thine own coin ·
+          <span class="num {pnl_class}">{pnl_sigil} {pnl_pct:+.2f}%</span> by investing (deposit-neutral) ·
           <span class="num {bm_class}">{bm_pnl_pct:+.2f}%</span> the blended index ·
           <span class="num {excess_class}">{excess_pct:+.2f}%</span> alpha
+        </div>
+        <div class="script mt-1 text-xs" style="color: var(--ink-fade);">
+          Deposits paid in <span class="num">{total_contributed:,.0f}</span> SEK ·
+          Won by the agent's own hand <span class="num {gain_class}">{invested_gain:+,.0f}</span> SEK
         </div>
       </div>
     </div>

@@ -35,9 +35,10 @@ class TickerMetrics:
     vol_30d_annualized_pct: float
     insider_buy_value_30d_sek: float  # sum of recent insider buys on this ticker
     insider_buy_count_30d: int
+    avg_turnover_30d: float = 0.0  # avg daily close*volume over 30d, NATIVE currency
 
     def one_liner(self) -> str:
-        """Compact form for the Screener prompt: ~one line of text."""
+        """Compact form for the Scout prompt: ~one line of text."""
         return (
             f"{self.ticker:12s}  "
             f"px={self.last_close:>8.2f}  "
@@ -47,6 +48,7 @@ class TickerMetrics:
             f"vs200ma={self.distance_from_200ma_pct:+6.1f}%  "
             f"vs52wH={self.distance_from_52w_high_pct:+6.1f}%  "
             f"vol30d={self.vol_30d_annualized_pct:5.1f}%  "
+            f"turn30d={self.avg_turnover_30d/1e6:>6.1f}M  "
             f"insider30d={self.insider_buy_value_30d_sek/1000:>6.0f}k×{self.insider_buy_count_30d}"
         )
 
@@ -86,6 +88,15 @@ def compute(
     daily_returns = close.pct_change().dropna()
     vol_30d = float(daily_returns.tail(30).std() * np.sqrt(252) * 100.0) if len(daily_returns) >= 30 else 0.0
 
+    # Average daily turnover (close*volume) over the last 30 days, in the stock's
+    # native currency. Used as a liquidity floor to drop untradeable micro-caps.
+    avg_turnover = 0.0
+    if "Volume" in history.columns:
+        vol = history["Volume"].astype(float)
+        turnover = (close * vol).dropna()
+        if len(turnover) > 0:
+            avg_turnover = float(turnover.tail(30).mean())
+
     # Insider buys aggregated over the last 30 calendar days
     insider_value = 0.0
     insider_count = 0
@@ -108,6 +119,7 @@ def compute(
         vol_30d_annualized_pct=vol_30d,
         insider_buy_value_30d_sek=insider_value,
         insider_buy_count_30d=insider_count,
+        avg_turnover_30d=avg_turnover,
     )
 
 

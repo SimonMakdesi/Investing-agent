@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.pipeline_daily import parse_watchlist
+from src.pipeline import parse_watchlist
 
 
 SAMPLE_JOURNAL = """# Journal — Investing Agent

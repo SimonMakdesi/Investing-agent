@@ -24,6 +24,23 @@ TRANSACTIONS_LOG = STATE_DIR / "transactions.log"
 
 STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
 
+# --- v2 aggressive mandate knobs (CLAUDE.md §2/§4) ---
+# North-star return target and horizon. Drives the pace line shown to the
+# Trader and in reports. It is a north star, NOT a hard driver — see CLAUDE.md.
+TARGET_RETURN_PCT = 50.0
+TARGET_HORIZON_MONTHS = 6
+
+# Monthly external top-up: the owner adds this much fake SEK once per calendar
+# month for the agent to deploy. Tracked as a contribution (NOT a gain) so the
+# % return measures investing skill, not deposits. See portfolio.contribute /
+# pace.time_weighted_return.
+MONTHLY_CONTRIBUTION_SEK = 25_000.0
+
+# Liquidity floor: drop names whose average daily turnover (close*volume over
+# 30d, native currency) is below this, so the Scout never picks untradeable
+# micro-caps. Deliberately lenient — it trims junk, not real small-caps.
+MIN_AVG_TURNOVER = 2_000_000.0  # ~2M native-currency units of daily turnover
+
 # Load .env from repo root for local runs. In GitHub Actions, env vars
 # come from repo Secrets and this is a no-op.
 load_dotenv(REPO_ROOT / ".env")

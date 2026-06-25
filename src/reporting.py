@@ -114,131 +114,123 @@ def send_email(subject: str, body_markdown: str, recipient: str | None = None) -
     log.info("Email sent")
 
 
-# --- Weekly report builder -------------------------------------------------
+# --- Report builder (v2: terse, no essays) ---------------------------------
 
 from datetime import date  # noqa: E402
 
+from src.pace import Pace  # noqa: E402
 from src.portfolio import Portfolio  # noqa: E402
 
 
-def build_weekly_report(
+def build_report(
     *,
     today: date,
+    deep: bool,
     portfolio_before: Portfolio,
     portfolio_after: Portfolio,
     prices: dict[str, float],
-    screener_text: str,
-    analyst_full_text: list[str],
-    pm_full_text: str,
+    pace: Pace,
     executed_trades: list[dict],
     risk_violations: list[dict],
-    journal_text: str,
-    dry_run: bool,
-    token_usage: dict,
+    trader_summary: str = "",  # accepted but intentionally NOT dumped (no essays)
+    journal_text: str = "",     # included only on deep cycles
+    dry_run: bool = False,
+    token_usage: dict | None = None,
+    contributed_this_cycle: float = 0.0,
+    total_contributed: float = 0.0,
+    invested_gain_sek: float = 0.0,
 ) -> str:
-    """Assemble the weekly markdown report — what gets emailed to the user."""
+    """Assemble the terse markdown report. v2: what was done, sizes, and the
+    deposit-neutral performance. Deposits are kept strictly separate from gains
+    (CLAUDE.md §2/§7). No rationale essays."""
+    token_usage = token_usage or {}
     value_before = portfolio_before.value(prices)
     value_after = portfolio_after.value(prices)
-    weekly_pnl = value_after - value_before
-    weekly_pnl_pct = (weekly_pnl / value_before * 100.0) if value_before else 0.0
+    # Strip this cycle's deposit out of the move so a top-up isn't shown as a gain.
+    cycle_pnl = value_after - value_before - contributed_this_cycle
+    cycle_pnl_pct = (cycle_pnl / value_before * 100.0) if value_before else 0.0
+    cash_pct = portfolio_after.cash_sek / value_after * 100.0 if value_after else 0.0
 
-    inception = portfolio_after.inception_date.date().isoformat()
-    inception_pnl = value_after - portfolio_after.initial_capital_sek
-    inception_pnl_pct = (
-        inception_pnl / portfolio_after.initial_capital_sek * 100.0
-        if portfolio_after.initial_capital_sek
-        else 0.0
-    )
-
+    title = "Weekly Deep Review" if deep else "Daily Pulse"
     dry_banner = (
-        "> **DRY RUN** — no trades were executed and the journal was not saved. "
-        "This is a preview of what the agent would do.\n\n"
-        if dry_run
-        else ""
+        "> **DRY RUN** — no trades executed, state not saved. Preview only.\n\n" if dry_run else ""
     )
 
     if executed_trades:
         trades_block = "\n".join(
             f"- **{t['action'].upper()}** {t['shares']} × {t['ticker']} "
-            f"@ {t['limit_price_sek']:.2f} SEK ({t['sleeve']}) — {t['rationale']}"
+            f"@ {t['limit_price_sek']:.2f} SEK — {t.get('rationale', '')}"
             for t in executed_trades
         )
     else:
-        trades_block = "_No trades this week._"
+        trades_block = "_No trades this cycle._"
 
     if risk_violations:
         violations_block = "\n".join(
-            f"- ❌ PROPOSED **{v['action']}** {v['shares']} × {v['ticker']} — "
+            f"- ❌ {v.get('action')} {v.get('shares')} × {v.get('ticker')} — "
             f"blocked by `{v['rule']}`: {v['detail']}"
             for v in risk_violations
         )
     else:
-        violations_block = "_(none — all proposals passed risk checks)_"
+        violations_block = ""
 
     if portfolio_after.holdings:
-        holdings_lines = []
+        rows = ["| Ticker | Sector | Shares | Cost | Px | Value SEK | % | P&L |",
+                "|---|---|---:|---:|---:|---:|---:|---:|"]
         for h in portfolio_after.holdings.values():
             px = prices.get(h.ticker, h.avg_cost)
             value = h.shares * px
             pct = value / value_after * 100.0 if value_after else 0
-            pnl_pct = (px / h.avg_cost - 1) * 100.0 if h.avg_cost else 0
-            holdings_lines.append(
-                f"- **{h.ticker}** ({h.sector or '?'}, {h.sleeve.value})  "
-                f"{h.shares:.0f} sh @ {h.avg_cost:.2f} → {px:.2f}  "
-                f"= {value:,.0f} SEK ({pct:.1f}% of portfolio, {pnl_pct:+.1f}% P&L)"
+            pnl_h = (px / h.avg_cost - 1) * 100.0 if h.avg_cost else 0
+            rows.append(
+                f"| {h.ticker} | {h.sector or '?'} | {h.shares:.0f} | {h.avg_cost:.2f} | "
+                f"{px:.2f} | {value:,.0f} | {pct:.1f}% | {pnl_h:+.1f}% |"
             )
-        holdings_block = "\n".join(holdings_lines)
+        holdings_block = "\n".join(rows)
     else:
-        holdings_block = "_No holdings yet — portfolio is 100% cash._"
+        holdings_block = "_No holdings — 100% cash._"
 
-    analyst_section = "\n\n---\n\n".join(analyst_full_text) if analyst_full_text else "_(no analyst notes)_"
-
-    # Cost estimate (very rough): see Anthropic pricing
     cost_est = _estimate_cost(token_usage)
 
-    return f"""# Investing Agent — Weekly Report
-**Week ending {today.isoformat()}**
-
-{dry_banner}## Headline
-
-Portfolio: **{value_after:,.0f} SEK** ({weekly_pnl_pct:+.2f}% this week, {inception_pnl_pct:+.2f}% since inception {inception})
-Cash: **{portfolio_after.cash_sek:,.0f} SEK** ({portfolio_after.cash_sek / value_after * 100:.1f}%)
-
-## This week's decisions
-
-{trades_block}
-
-### Blocked proposals
-{violations_block}
-
-## Holdings
-{holdings_block}
-
-## Portfolio Manager reasoning
-{pm_full_text}
-
-## Screener output
-{screener_text}
-
-## Analyst notes
-{analyst_section}
-
-## Updated journal (theses.md)
-```markdown
-{journal_text}
-```
-
----
-*Token usage: in={token_usage.get('input', 0):,}, out={token_usage.get('output', 0):,}, cache_read={token_usage.get('cache_read', 0):,}, cache_create={token_usage.get('cache_create', 0):,}. Estimated cost: ${cost_est:.2f}.*
-"""
+    parts = [
+        f"# Investing Agent — {title}",
+        f"**{today.isoformat()}**",
+        "",
+        dry_banner.rstrip(),
+        "## Where we stand",
+        "",
+        f"- **Portfolio value**: {value_after:,.0f} SEK",
+        f"- **Deposits in (your money)**: {total_contributed:,.0f} SEK"
+        + (f"  ·  +{contributed_this_cycle:,.0f} added this cycle" if contributed_this_cycle else ""),
+        f"- **Invested gain (AI performance)**: {invested_gain_sek:+,.0f} SEK",
+        f"- **Floor pace (deposit-neutral)**: {pace.one_liner()}",
+        f"- **This cycle, ex-deposit**: {cycle_pnl:+,.0f} SEK ({cycle_pnl_pct:+.2f}%)",
+        f"- **Cash**: {portfolio_after.cash_sek:,.0f} SEK ({cash_pct:.1f}%)",
+        "",
+        "## Decisions",
+        "",
+        trades_block,
+    ]
+    if violations_block:
+        parts += ["", "### Blocked by risk checker", "", violations_block]
+    parts += ["", "## Holdings", "", holdings_block]
+    if deep and journal_text:
+        parts += ["", "## Journal (theses.md)", "", "```markdown", journal_text, "```"]
+    parts += [
+        "",
+        "---",
+        f"*Tokens: in={token_usage.get('input', 0):,}, out={token_usage.get('output', 0):,}, "
+        f"cache_read={token_usage.get('cache_read', 0):,}, cache_create={token_usage.get('cache_create', 0):,}. "
+        f"Est. cost: ${cost_est:.2f}.*",
+    ]
+    return "\n".join(p for p in parts if p is not None) + "\n"
 
 
 def _estimate_cost(usage: dict) -> float:
-    """Very rough cost estimate. Uses blended Sonnet+Opus rates."""
-    # Approx per-1M-token blended rates (USD): input ~$8, output ~$30, cache_read ~$1
+    """Rough cost estimate. Blended Opus+Haiku rates (USD per 1M tokens)."""
     in_ = usage.get("input", 0)
     out = usage.get("output", 0)
     cr = usage.get("cache_read", 0)
     cc = usage.get("cache_create", 0)
-    return (in_ * 8 + out * 30 + cr * 1 + cc * 10) / 1_000_000
+    return (in_ * 6 + out * 22 + cr * 0.6 + cc * 7.5) / 1_000_000
 
