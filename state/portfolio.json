@@ -1,5 +1,5 @@
 {
-  "cash_sek": 66312.25002479553,
+  "cash_sek": 68176.45046424866,
   "holdings": {
     "HM-B.ST": {
       "ticker": "HM-B.ST",
@@ -17,15 +17,6 @@
       "sleeve": "core",
       "opened_at": "2026-05-24T12:09:31.132199+02:00",
       "sector": "Consumer Staples",
-      "currency": "SEK"
-    },
-    "THULE.ST": {
-      "ticker": "THULE.ST",
-      "shares": 17.0,
-      "avg_cost": 226.60000610351562,
-      "sleeve": "core",
-      "opened_at": "2026-05-24T20:05:52.039576+02:00",
-      "sector": "Consumer Discretionary",
       "currency": "SEK"
     },
     "VOLV-B.ST": {
@@ -63,8 +54,33 @@
       "opened_at": "2026-06-21T20:35:12.954248+02:00",
       "sector": "Consumer Discretionary",
       "currency": "SEK"
+    },
+    "STORY-B.ST": {
+      "ticker": "STORY-B.ST",
+      "shares": 205.0,
+      "avg_cost": 91.0,
+      "sleeve": "core",
+      "opened_at": "2026-06-26T01:17:42.168884+02:00",
+      "sector": "Consumer Discretionary",
+      "currency": "SEK"
+    },
+    "SCST.ST": {
+      "ticker": "SCST.ST",
+      "shares": 55.0,
+      "avg_cost": 144.39999389648438,
+      "sleeve": "core",
+      "opened_at": "2026-06-26T01:17:42.168997+02:00",
+      "sector": "Consumer Staples",
+      "currency": "SEK"
     }
   },
   "inception_date": "2026-05-23T23:46:58.071406+02:00",
-  "initial_capital_sek": 100000.0
+  "initial_capital_sek": 100000.0,
+  "contributions": [
+    {
+      "date": "2026-06-26T01:11:24.718857+02:00",
+      "amount_sek": 25000.0,
+      "value_before_sek": 100076.94996738434
+    }
+  ]
 }

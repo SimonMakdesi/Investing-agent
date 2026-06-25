@@ -59,3 +59,9 @@ Universe broadly weak heading into the July earnings cluster; cash at 66.4% refl
 - **Consumer Discretionary concentration:** HM + Thule + Rusta = ~13% of portfolio. No further Consumer Discretionary adds without rebalancing one of these, even if the insider signal is strong. The sector cap (25%) is not close, but three correlated names is enough.
 - **Correlated real estate:** ATRLJ + CORE-B = ~7.7%, both leveraged Swedish commercial real estate. No further real estate adds without rebalancing one first.
 - **Open question — earnings cluster:** ATRLJ (Jul 10), CORE-B (Jul 22), VOLV/ESSITY (Jul 24), ASSA/THULE (Jul 28–29) all land in a 19-day window. Consider whether any pre-print trimming is warranted, or whether current starter sizing provides sufficient cushion. Reassess at next weekly cycle once ATRLJ reports first.
+
+## Daily decisions log
+
+- 2026-06-25 sell 17 THULE.ST @ 203.60 SEK — Scout-flagged weakest holding, no catalyst; freeing Consumer Discretionary budget to fund STORY
+- 2026-06-25 buy 205 STORY-B.ST @ 91.00 SEK — 45M SEK founder+CFO insider cluster into a post-downgrade dip; high-conviction Jul 29 catalyst, funded partly by Thule exit
+- 2026-06-25 buy 55 SCST.ST @ 144.40 SEK — Broad insider cluster (9 buyers, 0 sellers, CEO + strategic owner) on a staples name; starter ahead of Q2
