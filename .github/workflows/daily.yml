@@ -1,9 +1,11 @@
-name: Daily light cycle
+name: Daily cycle
 
-# Weekdays at 17:00 UTC (~18:00 / 19:00 Europe/Stockholm depending on DST).
+# Weekdays at 22:00 UTC — AFTER the US market close (20:00 UTC summer /
+# 21:00 UTC winter), so both Stockholm and US get same-day final closes.
+# v2: the daily cycle trades on conviction every weekday (Scout -> Analyst -> Trader).
 on:
   schedule:
-    - cron: "0 17 * * 1-5"
+    - cron: "0 22 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
@@ -35,8 +37,8 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           REPORT_RECIPIENT: ${{ secrets.REPORT_RECIPIENT }}
         run: |
-          # Always emits the daily pulse + regenerates the dashboard.
-          # Add --silent to revert to the old "only email on flags" behaviour.
+          # v2: daily cycle trades on conviction (Scout -> Analyst -> Trader)
+          # and mutates state/. Use --dry-run to preview without changing state.
           uv run python -m src.pipeline_daily
 
       - name: Commit daily artifacts
@@ -44,10 +46,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/ archive/ docs/ || true
+          # state/ MUST be staged — the daily cycle now executes trades.
+          git add state/ reports/ archive/ docs/ || true
           if git diff --cached --quiet; then
-            echo "No daily artifacts changed."
+            echo "No changes to commit."
           else
-            git commit -m "Daily pulse $(date -u +%Y-%m-%d)"
+            git commit -m "Daily cycle $(date -u +%Y-%m-%d)"
             git push
           fi
