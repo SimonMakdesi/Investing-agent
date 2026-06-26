@@ -1,0 +1,13 @@
+{
+  "ticker": "NOLA-B.ST",
+  "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBEejlFZmw1R1lWRDUycGdZUlhuZERzNS00d2NsVDItd0ItS3FJUk1MOGxYeUZVVEZXUkoyU0h4Q3owMzlmTEpEVUYtQ05xemgtYVplX0haU0c4emEzWVE?oc=5",
+  "url_hash": "ab9a44ee1dfd",
+  "title": "Vinstminskning för Nolato - Dagens industri",
+  "source": "Dagens industri",
+  "published_at_iso": "2026-05-06T07:00:00+00:00",
+  "snippet": "Vinstminskning för Nolato &nbsp;&nbsp; Dagens industri",
+  "summary": "Nolato reports lower profits in latest results.",
+  "materiality": 3,
+  "sentiment": "negative",
+  "kind": "report"
+}

@@ -1,0 +1,13 @@
+{
+  "ticker": "TEL2-B.ST",
+  "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxOcWg4R0p2aVJ3R011SmFFakFOdG9JdGF1ZE55V3Y4YUxmajNOWVBjSDVCWlVrdUliemtibXV5cEg5cnZOZlFHd2pxSnNnUG9PTmkxdkdCeUtOMjE0YWpVZDBjMGdHMS0wZXZYSGNZZGEwOS1rMEJ4RWJtMDJmZ3pnaWdJQ3Z0amhXNWVwXzRtemVyQQ?oc=5",
+  "url_hash": "d9e4fd6fd418",
+  "title": "Mystiskt problem – drabbar många med Telenor och Tele2 - Marcus Oscarsson",
+  "source": "Marcus Oscarsson",
+  "published_at_iso": "2026-06-25T07:00:00+00:00",
+  "snippet": "Mystiskt problem – drabbar många med Telenor och Tele2 &nbsp;&nbsp; Marcus Oscarsson",
+  "summary": "Unspecified technical issue reportedly affecting many Telenor and Tele2 customers in Sweden.",
+  "materiality": 2,
+  "sentiment": "negative",
+  "kind": "operational"
+}

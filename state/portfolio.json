@@ -1,5 +1,5 @@
 {
-  "cash_sek": 68176.45046424866,
+  "cash_sek": 63286.75019454956,
   "holdings": {
     "HM-B.ST": {
       "ticker": "HM-B.ST",
@@ -37,15 +37,6 @@
       "sector": "Real Estate",
       "currency": "SEK"
     },
-    "CORE-B.ST": {
-      "ticker": "CORE-B.ST",
-      "shares": 1150.0,
-      "avg_cost": 2.5920000076293945,
-      "sleeve": "aggressive",
-      "opened_at": "2026-06-14T20:24:14.069237+02:00",
-      "sector": "Real Estate",
-      "currency": "SEK"
-    },
     "RUSTA.ST": {
       "ticker": "RUSTA.ST",
       "shares": 60.0,
@@ -71,6 +62,15 @@
       "sleeve": "core",
       "opened_at": "2026-06-26T01:17:42.168997+02:00",
       "sector": "Consumer Staples",
+      "currency": "SEK"
+    },
+    "HEXA-B.ST": {
+      "ticker": "HEXA-B.ST",
+      "shares": 95.0,
+      "avg_cost": 80.62000274658203,
+      "sleeve": "core",
+      "opened_at": "2026-06-27T01:05:38.808411+02:00",
+      "sector": "Industrials",
       "currency": "SEK"
     }
   },

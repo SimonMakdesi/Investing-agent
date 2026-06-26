@@ -65,3 +65,5 @@ Universe broadly weak heading into the July earnings cluster; cash at 66.4% refl
 - 2026-06-25 sell 17 THULE.ST @ 203.60 SEK — Scout-flagged weakest holding, no catalyst; freeing Consumer Discretionary budget to fund STORY
 - 2026-06-25 buy 205 STORY-B.ST @ 91.00 SEK — 45M SEK founder+CFO insider cluster into a post-downgrade dip; high-conviction Jul 29 catalyst, funded partly by Thule exit
 - 2026-06-25 buy 55 SCST.ST @ 144.40 SEK — Broad insider cluster (9 buyers, 0 sellers, CEO + strategic owner) on a staples name; starter ahead of Q2
+- 2026-06-26 sell 1150 CORE-B.ST @ 2.41 SEK — exiting dead-weight illiquid leveraged-RE name (-7% pnl, -35% vs 200MA) to clear a slot for the HEXA insider cluster
+- 2026-06-26 buy 95 HEXA-B.ST @ 80.62 SEK — unanimous insider cluster (4 buyers incl CFO) into a 21%-below-200MA washout, Jul 25 catalyst; starter sized for 82% vol
