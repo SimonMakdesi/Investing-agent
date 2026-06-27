@@ -1,15 +1,6 @@
 {
-  "cash_sek": 63286.75019454956,
+  "cash_sek": 40058.19937133789,
   "holdings": {
-    "HM-B.ST": {
-      "ticker": "HM-B.ST",
-      "shares": 29.0,
-      "avg_cost": 163.6999969482422,
-      "sleeve": "core",
-      "opened_at": "2026-05-24T12:09:31.131988+02:00",
-      "sector": "Consumer Discretionary",
-      "currency": "SEK"
-    },
     "ESSITY-B.ST": {
       "ticker": "ESSITY-B.ST",
       "shares": 30.0,
@@ -26,15 +17,6 @@
       "sleeve": "core",
       "opened_at": "2026-05-31T20:10:58.381125+02:00",
       "sector": "Industrials",
-      "currency": "SEK"
-    },
-    "ATRLJ-B.ST": {
-      "ticker": "ATRLJ-B.ST",
-      "shares": 185.0,
-      "avg_cost": 26.75,
-      "sleeve": "core",
-      "opened_at": "2026-06-07T20:17:16.195603+02:00",
-      "sector": "Real Estate",
       "currency": "SEK"
     },
     "RUSTA.ST": {
@@ -70,6 +52,24 @@
       "avg_cost": 80.62000274658203,
       "sleeve": "core",
       "opened_at": "2026-06-27T01:05:38.808411+02:00",
+      "sector": "Industrials",
+      "currency": "SEK"
+    },
+    "VIMIAN.ST": {
+      "ticker": "VIMIAN.ST",
+      "shares": 580.0,
+      "avg_cost": 29.450000762939453,
+      "sleeve": "core",
+      "opened_at": "2026-06-27T15:15:42.060833+02:00",
+      "sector": "Health Care",
+      "currency": "SEK"
+    },
+    "LIFCO-B.ST": {
+      "ticker": "LIFCO-B.ST",
+      "shares": 50.0,
+      "avg_cost": 316.20001220703125,
+      "sleeve": "core",
+      "opened_at": "2026-06-27T15:15:42.060932+02:00",
       "sector": "Industrials",
       "currency": "SEK"
     }
