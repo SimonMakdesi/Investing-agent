@@ -61,3 +61,9 @@ Portfolio at +0.3%, severely behind floor pace (-9.3pp on day 35). The weekly ro
 - **Consumer Discretionary concentration:** STORY-B (15%) + RUSTA (3.8%) + previous exits of Thule/HM mean sector is now smaller but STORY-B is outsized. Is this conviction or concentration risk? Answer: conviction on STORY-B insider cluster and Jul 29 catalyst justifies the size; RUSTA is starter. If STORY-B thesis breaks, rotate immediately.
 - **Earnings cluster sequencing:** VOLV/ESSITY/LIFCO/HEXA all land Jul 24–25. If the first two disappoint, Industrials and Staples risk repricing downward. Monitor correlation — may need to trim or pivot if that sector reprices hard.
 - **Open:** SCST.ST and HEXA-B.ST are both 1-day-old entries with real data risk (HEXA fundamentals possibly an artifact, SCST unproven). Both depend entirely on Q2 earnings to validate thesis. Assess confidence vs. position size — neither is oversized, both are defensible on insider signal alone, but the data gaps are material. Jul 25–29 prints will resolve.
+
+## Daily decisions log
+
+- 2026-06-29 sell 15 VOLV-B.ST @ 324.60 SEK — Scout-flagged weak/flat holder, trimming crowded Industrials to fund fresher insider clusters
+- 2026-06-29 buy 350 KJELL.ST @ 12.20 SEK — best-in-class insider cluster (CEO, CFO, largest shareholder) into Jul 24 catalyst, funded partly by VOLV exit
+- 2026-06-29 buy 15 SCST.ST @ 145.40 SEK — adding to intensifying controlling-owner + 9-insider cluster ahead of ~Jul 28 print

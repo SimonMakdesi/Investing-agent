@@ -1,5 +1,5 @@
 {
-  "cash_sek": 40058.19937133789,
+  "cash_sek": 38476.19962120056,
   "holdings": {
     "ESSITY-B.ST": {
       "ticker": "ESSITY-B.ST",
@@ -8,15 +8,6 @@
       "sleeve": "core",
       "opened_at": "2026-05-24T12:09:31.132199+02:00",
       "sector": "Consumer Staples",
-      "currency": "SEK"
-    },
-    "VOLV-B.ST": {
-      "ticker": "VOLV-B.ST",
-      "shares": 15.0,
-      "avg_cost": 325.5,
-      "sleeve": "core",
-      "opened_at": "2026-05-31T20:10:58.381125+02:00",
-      "sector": "Industrials",
       "currency": "SEK"
     },
     "RUSTA.ST": {
@@ -39,8 +30,8 @@
     },
     "SCST.ST": {
       "ticker": "SCST.ST",
-      "shares": 55.0,
-      "avg_cost": 144.39999389648438,
+      "shares": 70.0,
+      "avg_cost": 144.6142796107701,
       "sleeve": "core",
       "opened_at": "2026-06-26T01:17:42.168997+02:00",
       "sector": "Consumer Staples",
@@ -71,6 +62,15 @@
       "sleeve": "core",
       "opened_at": "2026-06-27T15:15:42.060932+02:00",
       "sector": "Industrials",
+      "currency": "SEK"
+    },
+    "KJELL.ST": {
+      "ticker": "KJELL.ST",
+      "shares": 350.0,
+      "avg_cost": 12.199999809265137,
+      "sleeve": "core",
+      "opened_at": "2026-06-30T00:59:54.726070+02:00",
+      "sector": "Consumer Discretionary",
       "currency": "SEK"
     }
   },

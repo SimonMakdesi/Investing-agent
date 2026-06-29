@@ -1,0 +1,13 @@
+{
+  "ticker": "PANW",
+  "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQcG9CUmJybm1oR1lxQUxvb1JNRlFJVl9RZTJnQ05qTW84WVQxZHRySVEyOHR2MnNZVHNzYWRUY1g4Nk1Gd3lfUFRwVHJmM2NLNWpweUYtdHlvSkx5cTc3VXJiRGpfWHFtNVI4Z1ZwNUFSM3FoTTlhcG9RQlk3djdWV0pVQ050TWlCemMtWTFYcU85Z3JJY1BQQm9QYzZSQXd4ZE1hT0czajFLREZTUGwyZ21QQjI3V3c?oc=5",
+  "url_hash": "ad63630d5471",
+  "title": "Palo Alto Networks, IBM och Red Hat samarbetar mot sårbarheter av Investing.com - Investing.com Sverige",
+  "source": "Investing.com Sverige",
+  "published_at_iso": "2026-06-24T13:26:42+00:00",
+  "snippet": "Palo Alto Networks, IBM och Red Hat samarbetar mot sårbarheter av Investing.com &nbsp;&nbsp; Investing.com Sverige",
+  "summary": "Palo Alto Networks partners with IBM and Red Hat to address cybersecurity vulnerabilities.",
+  "materiality": 2,
+  "sentiment": "positive",
+  "kind": "operational"
+}

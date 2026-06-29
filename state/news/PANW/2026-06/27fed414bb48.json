@@ -1,0 +1,13 @@
+{
+  "ticker": "PANW",
+  "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxOSVZfcnhQaFlleWg5enFoLV80WFh4WVJfaThRTUpnQ0Z5OWlKRHVQREdCWGFsUVhTUzhNaGcybnFsYVNLX1dydjdINUhNbU4xTDZrdlB5cE9tZnBrQS1mSmxhUGl2VjFhTVNCN1RJZ3h6a2pGZk5CeWdqNUtSZ2g0eHpEMHVGTjcyOUdOdWREaGY1NUdSSEZoWk1IWjRoTjRyYWN5TWRXYkdobm9EUGRoV3VSZ0NKbnZoUTVzU2JYcGJKT0tIVEMyWXVRbWVfUmpISExQbkduMFo?oc=5",
+  "url_hash": "27fed414bb48",
+  "title": "Palo Alto Networks och Deutsche Telekom lanserar AI-säkerhetsplattform med fokus på europeisk datasuveränitet - Aktuell Säkerhet",
+  "source": "Aktuell Säkerhet",
+  "published_at_iso": "2026-06-09T12:16:50+00:00",
+  "snippet": "Palo Alto Networks och Deutsche Telekom lanserar AI-säkerhetsplattform med fokus på europeisk datasuveränitet &nbsp;&nbsp; Aktuell Säkerhet",
+  "summary": "Palo Alto Networks and Deutsche Telekom launch AI security platform focused on European data sovereignty.",
+  "materiality": 3,
+  "sentiment": "positive",
+  "kind": "operational"
+}

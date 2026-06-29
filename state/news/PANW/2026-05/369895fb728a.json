@@ -1,0 +1,13 @@
+{
+  "ticker": "PANW",
+  "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPVkg1d2FXQ3V6SjJRWVU1TWJJWXNWNi00eVdhN1hNVHhJODhjaTRSVWJUT2cwUWxpTFNnWWlXRXMxWDZ5Q2V2N2oyVnByN0lmYkFnZ3YweTVtTDlUUlhvMHhPWEEycWJVVTVkU2ZTNUw5SWlxZTRHTm5hc2lzZWk5VXBxMzBQV0hBYWEzMldHN1JDVFBoMnQxME55T3U2TmhBYXBMdmlmNUVqTWs2QzBkMGs0MXktUnRv?oc=5",
+  "url_hash": "369895fb728a",
+  "title": "Sårbarhet i Palo Alto Networks brandvägg har utnyttjats i flera veckor - Computer Sweden",
+  "source": "Computer Sweden",
+  "published_at_iso": "2026-05-07T07:00:00+00:00",
+  "snippet": "Sårbarhet i Palo Alto Networks brandvägg har utnyttjats i flera veckor &nbsp;&nbsp; Computer Sweden",
+  "summary": "Palo Alto Networks firewall vulnerability has been actively exploited for several weeks, raising security and reputational concerns.",
+  "materiality": 4,
+  "sentiment": "negative",
+  "kind": "regulatory"
+}
