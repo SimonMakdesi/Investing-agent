@@ -1,5 +1,5 @@
 {
-  "cash_sek": 38476.19962120056,
+  "cash_sek": 32546.199697494507,
   "holdings": {
     "ESSITY-B.ST": {
       "ticker": "ESSITY-B.ST",
@@ -48,8 +48,8 @@
     },
     "VIMIAN.ST": {
       "ticker": "VIMIAN.ST",
-      "shares": 580.0,
-      "avg_cost": 29.450000762939453,
+      "shares": 780.0,
+      "avg_cost": 29.501282520783253,
       "sleeve": "core",
       "opened_at": "2026-06-27T15:15:42.060833+02:00",
       "sector": "Health Care",

@@ -1,0 +1,13 @@
+{
+  "ticker": "RUSTA.ST",
+  "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxPcTZON0pDcDZ3aWpXWkd4NEtEZ3hiLTkzUHc4eENLTE15OUtFNmtPSTVZd2liRURWVWdUVFhwc1B3SDYwalhTVmROQzVEQzFKRk5PN2w5endHbWhoNkQ5eHZBVk12UFREbUZ0ZzRGTDRCMkVVLURQTUZmZFdsQkdESGw1VEcxd1VUSUVvSlpKd1FzZ29ncFA4?oc=5",
+  "url_hash": "c4c3ce2c6610",
+  "title": "Storbritannien miljardsatsar – ska rusta upp armén - Aftonbladet",
+  "source": "Aftonbladet",
+  "published_at_iso": "2026-06-30T10:26:29+00:00",
+  "snippet": "Storbritannien miljardsatsar – ska rusta upp armén &nbsp;&nbsp; Aftonbladet",
+  "summary": "UK defence spending article — no relevance to Rusta (Swedish discount retailer); likely a false ticker match.",
+  "materiality": 1,
+  "sentiment": "neutral",
+  "kind": "other"
+}

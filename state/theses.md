@@ -67,3 +67,4 @@ Portfolio at +0.3%, severely behind floor pace (-9.3pp on day 35). The weekly ro
 - 2026-06-29 sell 15 VOLV-B.ST @ 324.60 SEK — Scout-flagged weak/flat holder, trimming crowded Industrials to fund fresher insider clusters
 - 2026-06-29 buy 350 KJELL.ST @ 12.20 SEK — best-in-class insider cluster (CEO, CFO, largest shareholder) into Jul 24 catalyst, funded partly by VOLV exit
 - 2026-06-29 buy 15 SCST.ST @ 145.40 SEK — adding to intensifying controlling-owner + 9-insider cluster ahead of ~Jul 28 print
+- 2026-06-30 buy 200 VIMIAN.ST @ 29.65 SEK — deploying idle cash into highest-conviction held insider cluster (Fidelio anchor) ahead of binary Jul 29 catalyst, taking position to ~18.5%
