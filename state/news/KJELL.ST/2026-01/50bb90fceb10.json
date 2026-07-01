@@ -1,0 +1,13 @@
+{
+  "ticker": "KJELL.ST",
+  "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE4wS0tkcDdkTF9NNzN1NnVtRnlhM0E0aG5xOHF2QUJrZ3QtUlVFR2hHanU0b2JFNURoUVBHZlpLdzRvWnlna2pBZ3NLTHpQeGN0ZmdhTjlhV3ZkMjdGWWY3dnBwcjBNYWdRaDl3OHl5aw?oc=5",
+  "url_hash": "50bb90fceb10",
+  "title": "Kjell & Company vinstvarnar - Affärsvärlden",
+  "source": "Affärsvärlden",
+  "published_at_iso": "2026-01-19T08:00:00+00:00",
+  "snippet": "Kjell & Company vinstvarnar &nbsp;&nbsp; Affärsvärlden",
+  "summary": "Kjell & Company issues profit warning, signaling earnings below expectations.",
+  "materiality": 5,
+  "sentiment": "negative",
+  "kind": "guidance"
+}

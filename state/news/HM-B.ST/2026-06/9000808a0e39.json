@@ -1,0 +1,13 @@
+{
+  "ticker": "HM-B.ST",
+  "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5PbkpQRThEX1RWZXExbGtfOThMVlZFT1JhS2JuZkczU3lYcFpSM0x1OVQtQlJBXzBNWDhaVXNkSkN0MVg1ZUZZd19jSmhTY05SZEhCLU9rTHkxdw?oc=5",
+  "url_hash": "9000808a0e39",
+  "title": "H&M bommar resultatet: ”Försäljning lägre än planerat” - EFN",
+  "source": "EFN",
+  "published_at_iso": "2026-06-26T05:05:24+00:00",
+  "snippet": "H&M bommar resultatet: ”Försäljning lägre än planerat” &nbsp;&nbsp; EFN",
+  "summary": "H&M misses results with sales below plan, signaling a negative earnings surprise.",
+  "materiality": 4,
+  "sentiment": "negative",
+  "kind": "guidance"
+}

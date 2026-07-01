@@ -68,3 +68,6 @@ Portfolio at +0.3%, severely behind floor pace (-9.3pp on day 35). The weekly ro
 - 2026-06-29 buy 350 KJELL.ST @ 12.20 SEK — best-in-class insider cluster (CEO, CFO, largest shareholder) into Jul 24 catalyst, funded partly by VOLV exit
 - 2026-06-29 buy 15 SCST.ST @ 145.40 SEK — adding to intensifying controlling-owner + 9-insider cluster ahead of ~Jul 28 print
 - 2026-06-30 buy 200 VIMIAN.ST @ 29.65 SEK — deploying idle cash into highest-conviction held insider cluster (Fidelio anchor) ahead of binary Jul 29 catalyst, taking position to ~18.5%
+- 2026-07-01 sell 30 ESSITY-B.ST @ 274.30 SEK — rotating out of weakest flat staples holding to fund MU starter
+- 2026-07-01 sell 70 SCST.ST @ 145.40 SEK — 5d flat starter with thinnest insider signal; freeing capital to fund MU
+- 2026-07-01 buy 2 MU @ 10036.11 SEK — AI-memory leader P/E 23 on +167% rev growth, funded by ESSITY+SCST exits; starter given cyclical/vol risk

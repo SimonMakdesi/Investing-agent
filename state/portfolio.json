@@ -1,15 +1,6 @@
 {
-  "cash_sek": 32546.199697494507,
+  "cash_sek": 55880.98855860112,
   "holdings": {
-    "ESSITY-B.ST": {
-      "ticker": "ESSITY-B.ST",
-      "shares": 30.0,
-      "avg_cost": 258.2066650390625,
-      "sleeve": "core",
-      "opened_at": "2026-05-24T12:09:31.132199+02:00",
-      "sector": "Consumer Staples",
-      "currency": "SEK"
-    },
     "RUSTA.ST": {
       "ticker": "RUSTA.ST",
       "shares": 60.0,
@@ -26,15 +17,6 @@
       "sleeve": "core",
       "opened_at": "2026-06-26T01:17:42.168884+02:00",
       "sector": "Consumer Discretionary",
-      "currency": "SEK"
-    },
-    "SCST.ST": {
-      "ticker": "SCST.ST",
-      "shares": 70.0,
-      "avg_cost": 144.6142796107701,
-      "sleeve": "core",
-      "opened_at": "2026-06-26T01:17:42.168997+02:00",
-      "sector": "Consumer Staples",
       "currency": "SEK"
     },
     "HEXA-B.ST": {
@@ -72,6 +54,15 @@
       "opened_at": "2026-06-30T00:59:54.726070+02:00",
       "sector": "Consumer Discretionary",
       "currency": "SEK"
+    },
+    "MU": {
+      "ticker": "MU",
+      "shares": 2.0,
+      "avg_cost": 10036.105172718177,
+      "sleeve": "core",
+      "opened_at": "2026-07-02T01:14:16.446786+02:00",
+      "sector": "Information Technology",
+      "currency": "USD"
     }
   },
   "inception_date": "2026-05-23T23:46:58.071406+02:00",
@@ -81,6 +72,11 @@
       "date": "2026-06-26T01:11:24.718857+02:00",
       "amount_sek": 25000.0,
       "value_before_sek": 100076.94996738434
+    },
+    {
+      "date": "2026-07-02T01:06:26.366134+02:00",
+      "amount_sek": 25000.0,
+      "value_before_sek": 125708.34907913208
     }
   ]
 }

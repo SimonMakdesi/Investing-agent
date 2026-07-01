@@ -1,0 +1,13 @@
+{
+  "ticker": "PANW",
+  "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNOXBhWFhRYjJUaU15QXVrVnEwTG1TUWY3cWxJTHVvWWJCR2ZEbVJZeFY4M3BOd3R1WkVKcVRDWGY3d0tyQUpkVmpROU8tN1AxTlhWNHlldEFKZFJKV2FxLUdZSlFMT1RVY3lXRHZGbVlLOGtReFdURzQ2cHFLNEFEREJRQU9sZ0xDdkR3b2lMMllvYWluZkYxTG1zUy0ybFoyTHdTV2pB?oc=5",
+  "url_hash": "afb053c880fd",
+  "title": "Google Cloud tecknar miljardavtal med Palo Alto Networks - Computer Sweden",
+  "source": "Computer Sweden",
+  "published_at_iso": "2025-12-23T08:00:00+00:00",
+  "snippet": "Google Cloud tecknar miljardavtal med Palo Alto Networks &nbsp;&nbsp; Computer Sweden",
+  "summary": "Google Cloud signs billion-dollar partnership deal with Palo Alto Networks for cloud security services.",
+  "materiality": 4,
+  "sentiment": "positive",
+  "kind": "ma"
+}
